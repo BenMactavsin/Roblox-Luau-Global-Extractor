@@ -8,7 +8,10 @@ Because I needed to get a list of Luau globals every version update to update an
 
 # How do I use it?
 
-1. Download the executable file named `RobloxLuauGlobalVariableFetcher.exe` and the Roblox XML model file named `RobloxLuauGlobalVariableFetcher.exe` from the releases tab.
+1. \*Download the executable file named `RobloxLuauGlobalVariableFetcher.exe` and the Roblox XML model file named `RobloxLuauGlobalVariableFetcher.exe` from the releases tab.
+
+\* You can also copy the source code from `src` folder and build the executable file yourself.
+
 2. Run the `RobloxLuauGlobalVariableFetcher.exe` to find the list of possible globals and save it to a file when prompted a `SaveFileDiolog` .
 3. Open Roblox Studio and insert the contents of `RobloxLuauGlobalVariableFetcher.rbxmx` to the `ServerScriptService` .
 4. Copy the contents of file that stores the list of globals into the `ModuleScript` named `GlobalList` that came with `RobloxLuauGlobalVariableFetcher.rbxmx` file.
