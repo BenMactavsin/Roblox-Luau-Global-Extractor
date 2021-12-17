@@ -20,7 +20,7 @@ namespace RobloxLuauGlobalVariableFetcher
             ulong DuplicateMatchCount = 0;
             Hashtable GlobalList = new Hashtable();
             StringBuilder GlobalListDataString = new StringBuilder("");
-            Regex GlobalRegex = new Regex(@"[a-zA-Z_][a-zA-Z_]+", RegexOptions.Compiled);
+            Regex GlobalRegex = new Regex(@"[a-zA-Z_][0-9a-zA-Z_]+", RegexOptions.Compiled);
             string StudioExecutableDirectory = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
 
             SaveFileDialog SaveResultDialog = new SaveFileDialog();
