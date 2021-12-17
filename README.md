@@ -14,4 +14,4 @@
  \* Currently the only exceptions to this are `plugin` global and *some* data in `AutocompleteMetadata.xml` that doesn't exist in Roblox Studio executable file yet.
 
 # Can I post issues/pull request?
- Yes. Feedback is welcome. Though I'm not sure how much will I update this repository. You can post suggestions in issues tab too.
+ Yes. Feedback is welcome. Though I'm not sure how much will I update this repository. You can post your suggestions and questions in issues tab too.
