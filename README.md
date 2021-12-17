@@ -2,7 +2,7 @@
  A very badly written implementation of searching ASCII strings in Roblox Studio executable to find possible list of globals.
 
 # Why?
- Because I needed to get a list of globals every version update and doing it by hand was starting to become irritating and matthewdean's implementation wasn't working for me for some unknown reason.
+ Because I needed to get a list of globals every version update and doing it by hand was starting to become irritating and [matthewdean's implementation](https://github.com/matthewdean/roblox-global-variable-enumerator) wasn't working for me for some unknown reason.
 
 # How do I use it?
  1. Download the executable file named `RobloxStudioGlobalFetcher.exe` and the Roblox XML model file named `RobloxStudioGlobalFetcher.rbxmx` from the releases tab.
