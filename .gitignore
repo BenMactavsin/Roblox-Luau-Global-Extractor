@@ -1,5 +1,7 @@
 **/src/ConsoleApp1/bin
 **/src/ConsoleApp1/obj
 **/.ionide
+**/src/.vs
+**/src/packages
 .fake
 .ionide
