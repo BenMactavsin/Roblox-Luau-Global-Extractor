@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Collections;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Text;
@@ -9,55 +9,91 @@ namespace RobloxLuauGlobalVariableFetcher
 {
     class Program
     {
-        //This attribute is required to use Dialogs functionality.
+        static void DisposeDialogs(params CommonDialog[] Dialogs)
+        {
+            foreach (CommonDialog Dialog in Dialogs)
+            {
+                Dialog.Dispose();
+            }
+        }
+
+        static void ExitProgram(short ExitCode = 0)
+        {
+            Console.ReadLine();
+            Environment.Exit(ExitCode);
+        }
+
+        //This attribute is required to use FileDialogs.
         [STAThread]
-        static void Main(string[] args)
+        static void Main(string[] Arguments)
         {
             //Creating constants and variables to be used in the program later.
+            //Program information strings tha will be outputted on console.
+            const string ProgramName = "Roblox Luau Global Variable Fetcher";
+            const string VersionInfo = "v.1.2.Stable";
+            const string InstructionsLink = "https://github.com/Mactavsin/Roblox-Luau-Global-Variable-Fetcher/blob/master/README.md#how-do-i-use-it";
+
+            //Variables to be used by StringBuilder later.
+            StringBuilder GlobalListDataString = new StringBuilder("return {\n");
             const string EntryStartString = "    \"";
             const string EntryEndString = "\",\n";
+
+            //Iteration counters.
             ulong IteratedMatchCount = 0;
             ulong DuplicateMatchCount = 0;
-            Hashtable GlobalList = new Hashtable();
-            StringBuilder GlobalListDataString = new StringBuilder("");
+
+            //Dictionary for preventing duplicates in final list.
+            Dictionary<string, bool> GlobalDictionary = new Dictionary<string, bool>();
+
+            //Regex and Directory information.
             Regex GlobalRegex = new Regex(@"[a-zA-Z_][0-9a-zA-Z_]+", RegexOptions.Compiled);
-            string StudioExecutableDirectory = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+            string StudioExecutableDirectory = string.Empty;
 
-            SaveFileDialog SaveResultDialog = new SaveFileDialog();
-            SaveResultDialog.Filter = "Lua Code File(*.lua)|*.lua|Luau Code File(*.luau)|*.luau";
-            SaveResultDialog.Title = "Save Global List";
-            SaveResultDialog.FilterIndex = 1;
-            SaveResultDialog.AddExtension = true;
-            SaveResultDialog.AutoUpgradeEnabled = true;
-            SaveResultDialog.RestoreDirectory = true;
-            SaveResultDialog.DefaultExt = "lua";
-            SaveResultDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-            SaveResultDialog.CheckPathExists = true;
+            //Dialogs
+            OpenFileDialog OpenStudioDirectoryDialog = new OpenFileDialog()
+            {
+                Filter = "Executable File (*.exe)|*.exe",
+                Title = "Select Studio Executable",
+                FilterIndex = 1,
+                AddExtension = false,
+                AutoUpgradeEnabled = true,
+                RestoreDirectory = true,
+                DefaultExt = "exe",
+                CheckPathExists = true
+            };
 
-            OpenFileDialog OpenStudioDirectoryDialog = new OpenFileDialog();
-            OpenStudioDirectoryDialog.Filter = "Executable File(*.exe)|*.exe";
-            OpenStudioDirectoryDialog.Title = "Select Studio Executable";
-            OpenStudioDirectoryDialog.FilterIndex = 1;
-            OpenStudioDirectoryDialog.AddExtension = false;
-            OpenStudioDirectoryDialog.AutoUpgradeEnabled = true;
-            OpenStudioDirectoryDialog.RestoreDirectory = true;
-            OpenStudioDirectoryDialog.DefaultExt = "exe";
-            OpenStudioDirectoryDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-            OpenStudioDirectoryDialog.CheckPathExists = true;
+            SaveFileDialog SaveResultDialog = new SaveFileDialog()
+            {
+                Filter = "Lua Code File (*.lua)|*.lua|Luau Code File (*.luau)|*.luau|Text File (*.txt)|*.txt",
+                Title = "Save Global List",
+                FilterIndex = 1,
+                AddExtension = true,
+                AutoUpgradeEnabled = true,
+                RestoreDirectory = true,
+                DefaultExt = "lua",
+                CheckPathExists = true
+            };
 
-            //Checking if provided directy is correct or not.
+            Console.WriteLine($"{ProgramName} ({VersionInfo})\n");
+            Console.WriteLine($"For instructions on how to use the program, please go to this link:\n{InstructionsLink}\n");
+            Console.WriteLine("Please select the Roblox Studio executable on the file dialog provided to you:\n");
+
+            //Checking if user provided a directory or not.
             if (OpenStudioDirectoryDialog.ShowDialog() == DialogResult.OK)
             {
                 StudioExecutableDirectory = OpenStudioDirectoryDialog.FileName;
             }
             else
             {
-                Console.WriteLine($"Failed to fetch directory {OpenStudioDirectoryDialog.FileName}, press ANY key to exit.");
-                Console.ReadLine();
-                Environment.Exit(0);
+                Console.WriteLine($"Failed to read directory {OpenStudioDirectoryDialog.FileName}. Press ANY key to exit the program.");
+                DisposeDialogs(OpenStudioDirectoryDialog, SaveResultDialog);
+                ExitProgram();
             }
 
-            Console.WriteLine("Starting Operations.");
+            Console.WriteLine("Directory found. Starting operations.");
+
+            //Start time to output operations time span later.
+            DateTime OperationsStartTime = DateTime.Now;
 
             //Matching all strings in executable file that has 2 or more alphanumerical + underscore characters in them.
             MatchCollection PossibleGlobalsCollection = GlobalRegex.Matches(File.ReadAllText(StudioExecutableDirectory));
@@ -70,37 +106,40 @@ namespace RobloxLuauGlobalVariableFetcher
                 IteratedMatchCount += 1;
 
                 //Checking if we have gone through the same global name before.
-                if (GlobalList.ContainsKey(GlobalVariable.Value) == false)
+                if (GlobalDictionary.ContainsKey(GlobalVariable.Value) == false)
                 {
-                    GlobalListDataString.Append(EntryStartString);
-                    GlobalListDataString.Append(GlobalVariable.Value);
-                    GlobalListDataString.Append(EntryEndString);
+                    GlobalListDataString.Append(EntryStartString).Append(GlobalVariable.Value).Append(EntryEndString);
 
                     //Adding the global name to the Hashtable to prevent duplicates in later iterations.
-                    GlobalList.Add(GlobalVariable.Value, true);
+                    GlobalDictionary.Add(GlobalVariable.Value, true);
                 }
                 else
                 {
                     DuplicateMatchCount += 1;
                 }
 
-                Console.Write($"\rGone through {IteratedMatchCount} matches.");
+                Console.Write($"\rIterated through {IteratedMatchCount} matches.");
             }
 
-            Console.WriteLine($"Finished Operations: Gone through {IteratedMatchCount} matches with {DuplicateMatchCount} duplicates ignored.");
+            TimeSpan OperationsTimeSpan = DateTime.Now.Subtract(OperationsStartTime);
 
+            Console.WriteLine($"\n\nFinished Operations: Gone through {IteratedMatchCount} matches with {DuplicateMatchCount} duplicates ignored.");
+            Console.WriteLine($"Performed task in {OperationsTimeSpan.Hours} hours, {OperationsTimeSpan.Minutes} minutes, {OperationsTimeSpan.Seconds} seconds, {OperationsTimeSpan.Milliseconds} milliseconds.\n");
+            Console.WriteLine("Please specify where to save the list on the file dialog provided to you:\n");
+
+            //Checking if user provided a directory or not.
             if (SaveResultDialog.ShowDialog() == DialogResult.OK)
             {
-                File.WriteAllText(SaveResultDialog.FileName, $"return {{\n{GlobalListDataString.ToString()}}}");
-                Console.WriteLine($"Data is saved to {SaveResultDialog.FileName}. Press ANY key to exit.");
+                File.WriteAllText(SaveResultDialog.FileName, GlobalListDataString.Append("}").ToString());
+                Console.WriteLine($"Data is saved to directory {SaveResultDialog.FileName}. Press ANY key to exit the program.");
             }
             else
             {
-                Console.WriteLine($"Failed to save data to {SaveResultDialog.FileName}. Press ANY key to exit.");
+                Console.WriteLine($"Failed to save data to directory {SaveResultDialog.FileName}. Press ANY key to exit program.");
             }
 
-            Console.ReadLine();
-            Environment.Exit(0);
+            DisposeDialogs(OpenStudioDirectoryDialog, SaveResultDialog);
+            ExitProgram();
         }
     }
 }
