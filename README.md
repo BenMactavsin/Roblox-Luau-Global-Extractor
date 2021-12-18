@@ -4,21 +4,34 @@ A barebone implementation of searching ASCII strings in Roblox Studio executable
 
 # Why does this exist?
 
-Because I needed to get a list of Luau globals every version update to update another repository and doing it by hand was starting to become irritating. So I search the internet and found [matthewdean's implementation](https://github.com/matthewdean/roblox-global-variable-enumerator) on the matter. However, for some unknown reason I couldn't get his code working and since it was last updated back in 2015 I decided to write one for myself. After writing the program, I decided to make the program public.
+Recently, I was creating a list of Luau globals every version update manualy to update another repository and doing the entire process by hand by hand was starting to become irritating. 
+
+So I search the internet and found [matthewdean's implementation](https://github.com/matthewdean/roblox-global-variable-enumerator) on the matter. 
+
+However, despite trying quite a bit, I couldn't get his code working and there were a few other thing with his implementation that made me uncomfortable:
+
+1. Source code included an executable file named `Strings.exe` that I couldn't find the actual source code for.
+
+2. It was last updated back in 2015. Which means it was rather unlikely that author was going to update it anytime soon.
+
+So with these facts in mind, I decided to write one for myself. After writing the program, I decided to make the program public so everyone can benefit from it for it's rather niche use case.
 
 # How do I use it?
 
-1. \*Download the executable file named `RobloxLuauGlobalVariableFetcher.exe` and the Roblox XML model file named `RobloxLuauGlobalVariableFetcher.exe` from the releases tab.
+1. \*Download the executable file named `RobloxLuauGlobalVariableFetcher.exe` and the Roblox XML model file named `RobloxLuauGlobalVariableFetcher.rbxmx` from the releases tab.
+
 ![image](https://user-images.githubusercontent.com/69454747/146631408-2708da17-147b-4eab-921e-b4de2fee46a7.png)
 
 ![image](https://user-images.githubusercontent.com/69454747/146631418-b3150938-7cb1-453c-aa7d-5eaf39666b93.png)
 
-\* You can also copy the source code from `src` folder and build the executable file yourself.
+\* You can also copy the source code from `src` and `Luau-Files` folders and build the executable and Lua files yourself.
+
 ![image](https://user-images.githubusercontent.com/69454747/146631446-4bae963e-964d-4498-b85c-9b9f6e97a386.png)
 
 ![image](https://user-images.githubusercontent.com/69454747/146631456-9d3efd02-8bbe-4b58-a4e1-24f3fb1bd2ed.png)
 
-2. Run the `RobloxLuauGlobalVariableFetcher.exe`. You will be met with a `OpenFileDialog` to select the Roblox Studio executable file first. 
+2. Run the `RobloxLuauGlobalVariableFetcher.exe`. You will be met with a `OpenFileDialog` to select the Roblox Studio executable file first.
+
 ![image](https://user-images.githubusercontent.com/69454747/146631480-054a6b69-5198-4a39-a169-b2f94aa872f4.png)
 
 
@@ -85,7 +98,7 @@ Because I needed to get a list of Luau globals every version update to update an
 
 ![image](https://user-images.githubusercontent.com/69454747/146632007-7f8196cd-4522-4530-a6e7-f007b9a43c16.png)
 
-4. Open a place in Roblox Studio and insert the folder in `RobloxLuauGlobalVariableFetcher.rbxmx` to the `ServerScriptService`.
+4. Open a place in Roblox Studio and insert the folder named `RobloxLuauGlobalVariableFetcher` in `RobloxLuauGlobalVariableFetcher.rbxmx` to the `ServerScriptService`.
 
 ![image](https://user-images.githubusercontent.com/69454747/146632076-4629b3e0-22b2-4189-8658-6489be5c594d.png)
 
@@ -93,7 +106,7 @@ Because I needed to get a list of Luau globals every version update to update an
 
 ![image](https://user-images.githubusercontent.com/69454747/146632095-9219fb28-8a98-4c1a-8c8d-198f0ad59855.png)
 
-5. Copy the contents of file (Use notepad if you don't have a code editor to open the `.lua` or `.luau` file.) that you saved earlier into the `ModuleScript` named `GlobalList` that came with `RobloxLuauGlobalVariableFetcher.rbxmx` file inside the folder.
+5. Copy the contents of file that you saved earlier, into the `ModuleScript` named `RobloxLuauGlobalList` that came with `RobloxLuauGlobalVariableFetcher.rbxmx` file, inside the `RobloxLuauGlobalVariableFetcher` folder.
 
 ![image](https://user-images.githubusercontent.com/69454747/146632131-02758455-d6d9-4336-9a9c-46c50a7e8cd6.png)
 
@@ -102,7 +115,7 @@ Because I needed to get a list of Luau globals every version update to update an
 ![image](https://user-images.githubusercontent.com/69454747/146632191-8fc3c87d-8769-417d-952f-580f191547b4.png)
 
 
-6. Copy the code inside the `Script` named `GlobalFetcher` that came with `RobloxLuauGlobalVariableFetcher.rbxmx` file inside the folder and run it in studio command bar by pressing <kbd>Enter</kbd> button. This will output \*almost all of the valid globals on studio output window.
+6. Copy the code inside the `Script` named `RobloxLuauGlobalVariableFetcher.server` that came with `RobloxLuauGlobalVariableFetcher.rbxmx` file, inside the `RobloxLuauGlobalVariableFetcher` folder, and run it in studio command bar by pressing <kbd>Enter</kbd> button. This will create a `ModuleScript` named `FinalGlobalList` inside the `RobloxLuauGlobalVariableFetcher` folder that will contain \*almost all of the valid globals inside a table.
 
 ![image](https://user-images.githubusercontent.com/69454747/146632237-50b80121-08f3-498e-a129-6244ccbda9fe.png)
 
@@ -112,9 +125,9 @@ Because I needed to get a list of Luau globals every version update to update an
 
 \* Currently the only exceptions to this are `plugin` and `script` globals and *some* data in `AutocompleteMetadata.xml` that might not exist in Roblox Studio executable file yet.
 
-# Can I post issues/pull request?
+# Can I create issues/pull request?
 
-Yes. Feedback is welcome. You can post your suggestions and questions in issues tab too.
+Yes. You can post your bugs, suggestions and questions in issues tab. You can also propose changes by creating a pull request.
 
-# Link
-https://github.com/Mactavsin/Roblox-Studio-Global-Variable-Fetcher
+# Links
+Repository Page: https://github.com/Mactavsin/Roblox-Studio-Global-Variable-Fetcher
