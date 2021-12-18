@@ -35,7 +35,7 @@ namespace RobloxLuauGlobalVariableFetcher
 
             //Variables to be used by StringBuilder later.
             StringBuilder GlobalListDataString = new StringBuilder("return {\n");
-            const string EntryStartString = "    \"";
+            const string EntryStartString = "\t\"";
             const string EntryEndString = "\",\n";
 
             //Iteration counters.
@@ -49,7 +49,7 @@ namespace RobloxLuauGlobalVariableFetcher
             Regex GlobalRegex = new Regex(@"[a-zA-Z_][0-9a-zA-Z_]+", RegexOptions.Compiled);
             string StudioExecutableDirectory = string.Empty;
 
-            //Dialogs
+            //User facing FileDialogs.
             OpenFileDialog OpenStudioDirectoryDialog = new OpenFileDialog()
             {
                 Filter = "Executable File (*.exe)|*.exe",
