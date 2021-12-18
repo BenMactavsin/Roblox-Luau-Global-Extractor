@@ -112,16 +112,16 @@ So with these facts in mind, I decided to write one for myself. After writing th
 
 ![image](https://user-images.githubusercontent.com/69454747/146632140-9dfdc54f-5dc0-4d69-b53d-b52b6f3c61f2.png)
 
-![image](https://user-images.githubusercontent.com/69454747/146632191-8fc3c87d-8769-417d-952f-580f191547b4.png)
+![image](https://user-images.githubusercontent.com/69454747/146644693-1d3aa99e-4431-45e5-87f9-fbbdd1d158e4.png)
 
 
 6. Copy the code inside the `Script` named `RobloxLuauGlobalVariableFetcher.server` that came with `RobloxLuauGlobalVariableFetcher.rbxmx` file, inside the `RobloxLuauGlobalVariableFetcher` folder, and run it in studio command bar by pressing <kbd>Enter</kbd> button. This will create a `ModuleScript` named `FinalGlobalList` inside the `RobloxLuauGlobalVariableFetcher` folder that will contain \*almost all of the valid globals inside a table.
 
-![image](https://user-images.githubusercontent.com/69454747/146632237-50b80121-08f3-498e-a129-6244ccbda9fe.png)
+![image](https://user-images.githubusercontent.com/69454747/146644777-ef93afd4-0ce4-45c7-b1a3-41d4a7304813.png)
 
 ![image](https://user-images.githubusercontent.com/69454747/146632251-bd91d44b-9db5-4d7a-8eed-8216964d07b0.png)
 
-![image](https://user-images.githubusercontent.com/69454747/146632292-e3ff30e6-da36-4046-a935-05a1e91ac8c9.png)
+![image](https://user-images.githubusercontent.com/69454747/146644869-011903a4-f4a6-43fb-bbe1-54c9c425ee06.png)
 
 \* Currently the only exceptions to this are `plugin` and `script` globals and *some* data in `AutocompleteMetadata.xml` that might not exist in Roblox Studio executable file yet.
 
