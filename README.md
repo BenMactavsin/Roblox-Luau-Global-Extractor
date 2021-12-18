@@ -1,6 +1,6 @@
 # Roblox Luau Global Variable Fetcher
 
-A barebone implementation of searching ASCII strings in Roblox Studio executable to create a list of possible Luau globals.
+A barebone implementation of searching ASCII strings in Roblox Studio executable to create a list of possible built-in Luau globals.
 
 # Why does this exist?
 
