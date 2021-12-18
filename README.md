@@ -104,7 +104,7 @@ So with these facts in mind, I decided to write one for myself. After writing th
 
 ![image](https://user-images.githubusercontent.com/69454747/146632092-32b12885-5859-40e3-a467-e27840e5d7ba.png)
 
-![image](https://user-images.githubusercontent.com/69454747/146632095-9219fb28-8a98-4c1a-8c8d-198f0ad59855.png)
+![image](https://user-images.githubusercontent.com/69454747/146652418-d63d623b-f905-458d-9014-aefe60677799.png)
 
 5. Copy the contents of file that you saved earlier, into the `ModuleScript` named `RobloxLuauGlobalList` that came with `RobloxLuauGlobalVariableFetcher.rbxmx` file, inside the `RobloxLuauGlobalVariableFetcher` folder.
 
