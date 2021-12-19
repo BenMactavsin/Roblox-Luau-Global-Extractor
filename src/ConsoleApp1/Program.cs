@@ -1,9 +1,9 @@
 ﻿using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.IO;
+using System.Collections.Generic;
 
 namespace RobloxLuauGlobalVariableFetcher
 {
@@ -27,10 +27,9 @@ namespace RobloxLuauGlobalVariableFetcher
         [STAThread]
         static void Main(string[] Arguments)
         {
-            //Creating constants and variables to be used in the program later.
             //Program information strings tha will be outputted on console.
             const string ProgramName = "Roblox Luau Global Variable Fetcher";
-            const string VersionInfo = "v.1.2.Stable";
+            const string VersionInfo = "v.1.3.Stable";
             const string InstructionsLink = "https://github.com/Mactavsin/Roblox-Luau-Global-Variable-Fetcher/blob/master/README.md#how-do-i-use-it";
 
             //Variables to be used by StringBuilder later.
@@ -39,8 +38,8 @@ namespace RobloxLuauGlobalVariableFetcher
             const string EntryEndString = "\",\n";
 
             //Iteration counters.
-            ulong IteratedMatchCount = 0;
-            ulong DuplicateMatchCount = 0;
+            int IteratedMatchCount = 0;
+            int DuplicateMatchCount = 0;
 
             //Dictionary for preventing duplicates in final list.
             Dictionary<string, bool> GlobalDictionary = new Dictionary<string, bool>();
@@ -121,7 +120,7 @@ namespace RobloxLuauGlobalVariableFetcher
                 Console.Write($"\rIterated through {IteratedMatchCount} matches.");
             }
 
-            TimeSpan OperationsTimeSpan = DateTime.Now.Subtract(OperationsStartTime);
+            TimeSpan OperationsTimeSpan = DateTime.Now - OperationsStartTime;
 
             Console.WriteLine($"\n\nFinished Operations: Gone through {IteratedMatchCount} matches with {DuplicateMatchCount} duplicates ignored.");
             Console.WriteLine($"Performed task in {OperationsTimeSpan.Hours} hours, {OperationsTimeSpan.Minutes} minutes, {OperationsTimeSpan.Seconds} seconds, {OperationsTimeSpan.Milliseconds} milliseconds.\n");
