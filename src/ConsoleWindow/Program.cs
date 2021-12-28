@@ -3,142 +3,152 @@ using System.Windows.Forms;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.IO;
-using System.Collections.Generic;
+using System.Diagnostics;
+using System.ComponentModel;
+using Newtonsoft.Json;
+using RLGVF.Methods;
 
-namespace RobloxLuauGlobalVariableFetcher
+namespace RLGVF
 {
     class Program
     {
-        static void DisposeDialogs(params CommonDialog[] Dialogs)
-        {
-            foreach (CommonDialog Dialog in Dialogs)
-            {
-                Dialog.Dispose();
-            }
-        }
-
-        static void ExitProgram(short ExitCode = 0)
-        {
-            Console.ReadLine();
-            Environment.Exit(ExitCode);
-        }
-
-        //This attribute is required to use FileDialogs.
+        //This attribute is required to use CommonDialogs.
         [STAThread]
         static void Main(string[] Arguments)
         {
-            //Program information strings tha will be outputted on console.
-            const string ProgramName = "Roblox Luau Global Variable Fetcher";
-            const string VersionInfo = "v.1.3.Stable";
-            const string InstructionsLink = "https://github.com/Mactavsin/Roblox-Luau-Global-Variable-Fetcher/blob/master/README.md#how-do-i-use-it";
+            ConsoleOutputProvider.WriteProgramInformation();
 
-            //Variables to be used by StringBuilder later.
-            StringBuilder GlobalListDataString = new StringBuilder("return {\n");
-            const string EntryStartString = "\t\"";
-            const string EntryEndString = "\",\n";
+            //Creating and getting necessary directories.
+            string RobloxFolderDirectory = string.Empty, RobloxStudioExecutableDirectory = string.Empty, SaveFileDirectory = string.Empty;
 
-            //Iteration counters.
-            int IteratedMatchCount = 0;
-            int DuplicateMatchCount = 0;
+            ConsoleOutputProvider.WriteSelectDirectory("Roblox folder", "FolderBrowserDialog");
 
-            //Dictionary for preventing duplicates in final list.
-            Dictionary<string, bool> GlobalDictionary = new Dictionary<string, bool>();
+            using (FolderBrowserDialog OpenRobloxFolderDirectoryDialog = new FolderBrowserDialog()
+            {
+                ShowNewFolderButton = false,
+                RootFolder = Environment.SpecialFolder.LocalApplicationData
+            })
+            {
+                RobloxFolderDirectory = UncategorizedMethodsProvider.ShowDialog(OpenRobloxFolderDirectoryDialog, "\nFailed to read directory of the Roblox folder. Press ANY key to exit the program.");
+            }
 
-            //Regex and Directory information.
-            Regex GlobalRegex = new Regex(@"[a-zA-Z_][0-9a-zA-Z_]+", RegexOptions.Compiled);
-            string StudioExecutableDirectory = string.Empty;
+            ConsoleOutputProvider.WriteSelectDirectory(RobloxFolderDirectory, "Roblox Studio Executable file", "OpenFileDialog");
 
-            //User facing FileDialogs.
-            OpenFileDialog OpenStudioDirectoryDialog = new OpenFileDialog()
+            using (OpenFileDialog OpenRobloxStudioExecutableDirectoryDialog = new OpenFileDialog()
             {
                 Filter = "Executable File (*.exe)|*.exe",
-                Title = "Select Studio Executable",
+                Title = "Select Roblox Studio Executable",
                 FilterIndex = 1,
                 AddExtension = false,
                 AutoUpgradeEnabled = true,
                 RestoreDirectory = true,
                 DefaultExt = "exe",
                 CheckPathExists = true
-            };
+            })
+            {
+                RobloxStudioExecutableDirectory = UncategorizedMethodsProvider.ShowDialog(OpenRobloxStudioExecutableDirectoryDialog, "\nFailed to read directory of the Roblox Studio Executable file. Press ANY key to exit the program.");
+            }
 
-            SaveFileDialog SaveResultDialog = new SaveFileDialog()
+            ConsoleOutputProvider.WriteSelectDirectory(RobloxStudioExecutableDirectory, "save file", "SaveFileDialog");
+
+            using (SaveFileDialog SaveFinalResultDirectoryDialog = new SaveFileDialog()
             {
                 Filter = "Lua Code File (*.lua)|*.lua|Luau Code File (*.luau)|*.luau|Text File (*.txt)|*.txt",
-                Title = "Save Global List",
+                Title = "Select Global List Save Location",
                 FilterIndex = 1,
                 AddExtension = true,
                 AutoUpgradeEnabled = true,
                 RestoreDirectory = true,
                 DefaultExt = "lua",
                 CheckPathExists = true
-            };
-
-            Console.WriteLine($"{ProgramName} ({VersionInfo})\n");
-            Console.WriteLine($"For instructions on how to use the program, please go to this link:\n{InstructionsLink}\n");
-            Console.WriteLine("Please select the Roblox Studio executable on the file dialog provided to you:\n");
-
-            //Checking if user provided a directory or not.
-            if (OpenStudioDirectoryDialog.ShowDialog() == DialogResult.OK)
+            })
             {
-                StudioExecutableDirectory = OpenStudioDirectoryDialog.FileName;
-            }
-            else
-            {
-                Console.WriteLine($"Failed to read directory {OpenStudioDirectoryDialog.FileName}. Press ANY key to exit the program.");
-                DisposeDialogs(OpenStudioDirectoryDialog, SaveResultDialog);
-                ExitProgram();
+                SaveFileDirectory = UncategorizedMethodsProvider.ShowDialog(SaveFinalResultDirectoryDialog, "\nFailed to read directory of the save file. Press ANY key to exit the program.");
             }
 
-            Console.WriteLine("Directory found. Starting operations.");
+            ConsoleOutputProvider.WriteLine(SaveFileDirectory);
+            ConsoleOutputProvider.WriteLine("\nNecessary directories found. Starting operations:\n");
 
-            //Start time to output operations time span later.
-            DateTime OperationsStartTime = DateTime.Now;
+            string PluginSettingsFolderDirectory = DirectoryProvider.GetPluginSettingsFolderDirectory(RobloxFolderDirectory);
+            string PluginSettingsFileDirectory = DirectoryProvider.GetPluginSettingsFileDirectory(PluginSettingsFolderDirectory);
+
+            //DateTime to get operations TimeSpawn later.
+            OperationsTimeSpanProvider.SetTimer();
+
+            //Storing the current data in settings.json file to restore it later.
+            string PreviousPluginSettingsFileData = File.ReadAllText(PluginSettingsFileDirectory);
+
+            //FirstGlobalEntryList EntryListStringBuilder to create a list of globals.
+            ListStringBuilder FirstGlobalEntryListStringBuilder = new ListStringBuilder(new StringBuilder("return {\n"), "\t\"{0}\",\n");
+
+            //Iteration counters.
+            int IteratedMatchCount = 0;
+            int DuplicateMatchCount = 0;
 
             //Matching all strings in executable file that has 2 or more alphanumerical + underscore characters in them.
-            MatchCollection PossibleGlobalsCollection = GlobalRegex.Matches(File.ReadAllText(StudioExecutableDirectory));
+            UncategorizedMethodsProvider.CheckMatches(Regex.Matches(File.ReadAllText(RobloxStudioExecutableDirectory), @"[a-zA-Z_][0-9a-zA-Z_]+", RegexOptions.Compiled), ref FirstGlobalEntryListStringBuilder, ref IteratedMatchCount, ref DuplicateMatchCount);
 
-            Console.WriteLine($"Found {PossibleGlobalsCollection.Count} matches.");
+            ConsoleOutputProvider.WriteLine("\n\nRoblox Studio Executable file alphanumerical character pattern check finished.");
+            ConsoleOutputProvider.WriteLine("Moving to runtime Luau global enviroment check. Running Roblox Studio Executable file, please do not interfere.\n");
 
-            //Going through the MatchCollection with possible global names.
-            foreach (Match GlobalVariable in PossibleGlobalsCollection)
+            //Creating temporary XML place file and plugin file to run an enviroment check.
+            string TemporaryPlaceFileDirectory = TemporaryDirectoryProvider.CreateRobloxPlaceXMLFile(ref FirstGlobalEntryListStringBuilder);
+            TemporaryDirectoryProvider.CreatePluginFile(Path.Combine(RobloxFolderDirectory, "Plugins"));
+
+            //FinalGlobalEntryList to save the final list of globals.
+            string FinalGlobalEntryList = string.Empty;
+
+            //Process to run RobloxStudioBeta executable with given parameters later.
+            using (Process RobloxStudioRuntimeLuauGlobalEnviromentCheckProcess = new Process()
             {
-                IteratedMatchCount += 1;
-
-                //Checking if we have gone through the same global name before.
-                if (GlobalDictionary.ContainsKey(GlobalVariable.Value) == false)
+                StartInfo = new ProcessStartInfo(RobloxStudioExecutableDirectory, $"-task EditFile -localPlaceFile {TemporaryPlaceFileDirectory}")
+            })
+            {
+                //FileSystemWatcher to track settings.json file changes.
+                using (FileSystemWatcher PluginSettingsFolderDirectoryWatcher = new FileSystemWatcher(PluginSettingsFolderDirectory, "settings.json")
                 {
-                    GlobalListDataString.Append(EntryStartString).Append(GlobalVariable.Value).Append(EntryEndString);
-
-                    //Adding the global name to the Hashtable to prevent duplicates in later iterations.
-                    GlobalDictionary.Add(GlobalVariable.Value, true);
-                }
-                else
+                    EnableRaisingEvents = true,
+                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size,
+                    IncludeSubdirectories = false
+                })
                 {
-                    DuplicateMatchCount += 1;
+                    PluginSettingsFolderDirectoryWatcher.Changed += (object SenderSource, FileSystemEventArgs EventArguments) =>
+                    {
+                        using (FileStream PluginSettingsFileStream = new FileStream(EventArguments.FullPath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
+                        {
+                            dynamic PluginSettingsFileJsonData = JsonConvert.DeserializeObject(new StreamReader(PluginSettingsFileStream).ReadToEnd());
+
+                            if (PluginSettingsFileJsonData?.GlobalListCheckFinished == true && PluginSettingsFileJsonData?.GlobalList != null)
+                            {
+                                PluginSettingsFolderDirectoryWatcher.EnableRaisingEvents = false;
+                                FinalGlobalEntryList = PluginSettingsFileJsonData.GlobalList;
+
+                                try
+                                {
+                                    RobloxStudioRuntimeLuauGlobalEnviromentCheckProcess.Kill();
+                                }
+                                catch (Win32Exception)
+                                {
+                                    //Apperently calling Process.Kill() on a process you started can throw Win32Exception.
+                                }
+                            }
+                        }
+                    };
+
+                    RobloxStudioRuntimeLuauGlobalEnviromentCheckProcess.Start();
+                    RobloxStudioRuntimeLuauGlobalEnviromentCheckProcess.WaitForExit();
                 }
-
-                Console.Write($"\rIterated through {IteratedMatchCount} matches.");
             }
+            
+            File.WriteAllText(SaveFileDirectory, FinalGlobalEntryList);
+            File.WriteAllText(PluginSettingsFileDirectory, PreviousPluginSettingsFileData);
 
-            TimeSpan OperationsTimeSpan = DateTime.Now - OperationsStartTime;
+            ConsoleOutputProvider.WriteOperationsTimeSpan(OperationsTimeSpanProvider.GetTimeSpan());
+            ConsoleOutputProvider.WriteLine($"\nList is saved to directory: {SaveFileDirectory}\n");
 
-            Console.WriteLine($"\n\nFinished Operations: Gone through {IteratedMatchCount} matches with {DuplicateMatchCount} duplicates ignored.");
-            Console.WriteLine($"Performed task in {OperationsTimeSpan.Hours} hours, {OperationsTimeSpan.Minutes} minutes, {OperationsTimeSpan.Seconds} seconds, {OperationsTimeSpan.Milliseconds} milliseconds.\n");
-            Console.WriteLine("Please specify where to save the list on the file dialog provided to you:\n");
+            TemporaryDirectoryProvider.ClearDirectories();
 
-            //Checking if user provided a directory or not.
-            if (SaveResultDialog.ShowDialog() == DialogResult.OK)
-            {
-                File.WriteAllText(SaveResultDialog.FileName, GlobalListDataString.Append("}").ToString());
-                Console.WriteLine($"Data is saved to directory {SaveResultDialog.FileName}. Press ANY key to exit the program.");
-            }
-            else
-            {
-                Console.WriteLine($"Failed to save data to directory {SaveResultDialog.FileName}. Press ANY key to exit program.");
-            }
-
-            DisposeDialogs(OpenStudioDirectoryDialog, SaveResultDialog);
-            ExitProgram();
+            throw new ExitProgramException(0, "Press ANY key to exit the program.");
         }
     }
 }
