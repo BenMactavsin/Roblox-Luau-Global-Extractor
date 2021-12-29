@@ -5,7 +5,8 @@ using System.Text.RegularExpressions;
 using System.IO;
 using System.Diagnostics;
 using System.ComponentModel;
-using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Text.Json;
 using RLGVF.Methods;
 
 namespace RLGVF
@@ -116,20 +117,23 @@ namespace RLGVF
                     {
                         using (FileStream PluginSettingsFileStream = new FileStream(EventArguments.FullPath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
                         {
-                            dynamic PluginSettingsFileJsonData = JsonConvert.DeserializeObject(new StreamReader(PluginSettingsFileStream).ReadToEnd());
-
-                            if (PluginSettingsFileJsonData?.GlobalListCheckFinished == true && PluginSettingsFileJsonData?.GlobalList != null)
+                            using (StreamReader PluginSettingsFileStreamReader = new StreamReader(PluginSettingsFileStream))
                             {
-                                PluginSettingsFolderDirectoryWatcher.EnableRaisingEvents = false;
-                                FinalGlobalEntryList = PluginSettingsFileJsonData.GlobalList;
+                                Dictionary<string, JsonElement> PluginSettingsFileJsonData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(PluginSettingsFileStreamReader.ReadToEnd());
 
-                                try
+                                if (PluginSettingsFileJsonData.ContainsKey("GlobalList") == true && PluginSettingsFileJsonData.ContainsKey("GlobalListCheckFinished") == true && PluginSettingsFileJsonData["GlobalListCheckFinished"].GetBoolean() == true)
                                 {
-                                    RobloxStudioRuntimeLuauGlobalEnviromentCheckProcess.Kill();
-                                }
-                                catch (Win32Exception)
-                                {
-                                    //Apperently calling Process.Kill() on a process you started can throw Win32Exception.
+                                    PluginSettingsFolderDirectoryWatcher.EnableRaisingEvents = false;
+                                    FinalGlobalEntryList = PluginSettingsFileJsonData["GlobalList"].GetString();
+
+                                    try
+                                    {
+                                        RobloxStudioRuntimeLuauGlobalEnviromentCheckProcess.Kill();
+                                    }
+                                    catch (Win32Exception)
+                                    {
+                                        //Apperently calling Process.Kill() on a process you started can throw Win32Exception.
+                                    }
                                 }
                             }
                         }
