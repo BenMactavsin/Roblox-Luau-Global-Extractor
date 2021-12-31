@@ -16,7 +16,7 @@ namespace RLGVF
     {
         //This attribute is required to use CommonDialogs.
         [STAThread]
-        static void Main(string[] Arguments)
+        static void Main(string[] ExecutableArguments)
         {
             Settings ProgramSettings = Settings.Default;
             ConsoleOutputProvider.Output(OutputFormatType.ProgramInformation, 0, 2, ProgramSettings.ProgramName, ProgramSettings.VersionInfo, ProgramSettings.InstructionsLink);
