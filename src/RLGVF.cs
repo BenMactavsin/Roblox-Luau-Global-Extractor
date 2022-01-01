@@ -18,13 +18,16 @@ namespace RLGVF
         [STAThread]
         static void Main(string[] ExecutableArguments)
         {
+            //Program Settings
             Settings ProgramSettings = Settings.Default;
-            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.ProgramInformation, 0, 2, ProgramSettings.ProgramName, ProgramSettings.VersionInfo, ProgramSettings.InstructionsLink);
 
-            //Creating and getting necessary directories.
+            {
+                ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.ProgramInformation, 0, 2, ProgramSettings.ProgramName, ProgramSettings.VersionInfo, ProgramSettings.InstructionsLink);
+                ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.DirectorySelection, 0, 1, "Roblox folder", "FolderBrowserDialog");
+            }
+
+            //Getting necessary directories.
             string RobloxFolderDirectory = string.Empty, RobloxStudioExecutableDirectory = string.Empty, SaveFileDirectory = string.Empty;
-
-            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.DirectorySelection, 0, 1, "Roblox folder", "FolderBrowserDialog");
 
             using (FolderBrowserDialog OpenRobloxFolderDirectoryDialog = new FolderBrowserDialog()
             {
@@ -38,8 +41,10 @@ namespace RLGVF
                 RobloxFolderDirectory = UncategorizedMethodsProvider.ShowDialog(OpenRobloxFolderDirectoryDialog, new ExitProgramException(ExitProgramException.ExitProgramExceptionFormat.InvalidProvidedDirectory, 0, "Roblox folder"));
             }
 
-            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 2, RobloxFolderDirectory);
-            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.DirectorySelection, 0, 1, "Roblox Studio Executable file", "OpenFileDialog");
+            {
+                ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 2, RobloxFolderDirectory);
+                ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.DirectorySelection, 0, 1, "Roblox Studio Executable file", "OpenFileDialog");
+            }
 
             using (OpenFileDialog OpenRobloxStudioExecutableDirectoryDialog = new OpenFileDialog()
             {
@@ -57,8 +62,10 @@ namespace RLGVF
                 RobloxStudioExecutableDirectory = UncategorizedMethodsProvider.ShowDialog(OpenRobloxStudioExecutableDirectoryDialog, new ExitProgramException(ExitProgramException.ExitProgramExceptionFormat.InvalidProvidedDirectory, 0, "Roblox Studio Executable file"));
             }
 
-            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 2, RobloxStudioExecutableDirectory);
-            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.DirectorySelection, 0, 1, "save file", "SaveFileDialog");
+            {
+                ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 2, RobloxStudioExecutableDirectory);
+                ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.DirectorySelection, 0, 1, "save file", "SaveFileDialog");
+            }
 
             using (SaveFileDialog SaveFinalResultDirectoryDialog = new SaveFileDialog()
             {
@@ -76,8 +83,10 @@ namespace RLGVF
                 SaveFileDirectory = UncategorizedMethodsProvider.ShowDialog(SaveFinalResultDirectoryDialog, new ExitProgramException(ExitProgramException.ExitProgramExceptionFormat.InvalidProvidedDirectory, 0, "save file"));
             }
 
-            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 2, SaveFileDirectory);
-            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 2, "Necessary directories found. Starting operations.");
+            {
+                ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 2, SaveFileDirectory);
+                ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 2, "Necessary directories found. Starting operations.");
+            }
 
             string PluginSettingsFolderDirectory = DirectoryProvider.GetDirectory(DirectoryProvider.DirectoryType.PluginSettingsFolder, RobloxFolderDirectory);
             string PluginSettingsFileDirectory = DirectoryProvider.GetDirectory(DirectoryProvider.DirectoryType.PluginSettingsFile, PluginSettingsFolderDirectory);
@@ -98,7 +107,9 @@ namespace RLGVF
             //Matching all strings in executable file that has 2 or more alphanumerical + underscore characters in them.
             UncategorizedMethodsProvider.CheckMatches(Regex.Matches(File.ReadAllText(RobloxStudioExecutableDirectory), @"[a-zA-Z_][0-9a-zA-Z_]+", RegexOptions.Compiled), ref FirstGlobalEntryListStringBuilder, ref IteratedMatchCount, ref DuplicateMatchCount);
 
-            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 2, 2, "Roblox Studio Executable file alphanumerical character pattern check finished.\nMoving to runtime Luau global enviroment check. Running Roblox Studio Executable file, please do not interfere.");
+            {
+                ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 2, 2, "Roblox Studio Executable file alphanumerical character pattern check finished.\nMoving to runtime Luau global enviroment check. Running Roblox Studio Executable file, please do not interfere.");
+            }
 
             //Creating temporary XML place file and plugin file to run an enviroment check.
             TemporaryDirectoryProvider.CreatePluginFile(DirectoryProvider.GetDirectory(DirectoryProvider.DirectoryType.LocalPluginsFolder, RobloxFolderDirectory));
@@ -112,7 +123,7 @@ namespace RLGVF
                 TemporaryDirectoryProvider.ClearDirectories();
             };
 
-            //Just in case.
+            //Just in case something unexpected happens.
             try
             {
                 //Process to run RobloxStudioBeta executable with given parameters later.
@@ -175,12 +186,14 @@ namespace RLGVF
 
             File.WriteAllText(SaveFileDirectory, FinalGlobalEntryList);
             File.WriteAllText(PluginSettingsFileDirectory, PreviousPluginSettingsFileData);
-
-            TimeSpan OperationsTimeSpan = OperationsTimeSpanProvider.GetTimeSpan();
-            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.OperationsTimeSpan, 0, 2, OperationsTimeSpan.Hours, OperationsTimeSpan.Minutes, OperationsTimeSpan.Seconds, OperationsTimeSpan.Milliseconds);
-            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 2, $"List is saved to directory: {SaveFileDirectory}");
-
             TemporaryDirectoryProvider.ClearDirectories();
+
+            {
+                TimeSpan OperationsTimeSpan = OperationsTimeSpanProvider.GetTimeSpan();
+
+                ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.OperationsTimeSpan, 0, 2, OperationsTimeSpan.Hours.ToString(), OperationsTimeSpan.Minutes.ToString(), OperationsTimeSpan.Seconds.ToString(), OperationsTimeSpan.Milliseconds.ToString());
+                ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 2, $"List is saved to directory: {SaveFileDirectory}");
+            }
 
             throw new ExitProgramException(ExitProgramException.ExitProgramExceptionFormat.AwaitExit, 0).ThrowException();
         }
