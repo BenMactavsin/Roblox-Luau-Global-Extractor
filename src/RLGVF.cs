@@ -18,7 +18,7 @@ namespace RLGVF
         [STAThread]
         static void Main(string[] ExecutableArguments)
         {
-            //Program Settings
+            //Program Settings.
             Settings ProgramSettings = Settings.Default;
 
             {
@@ -91,34 +91,32 @@ namespace RLGVF
             string PluginSettingsFolderDirectory = DirectoryProvider.GetDirectory(DirectoryProvider.DirectoryType.PluginSettingsFolder, RobloxFolderDirectory);
             string PluginSettingsFileDirectory = DirectoryProvider.GetDirectory(DirectoryProvider.DirectoryType.PluginSettingsFile, PluginSettingsFolderDirectory);
 
-            //DateTime to get operations TimeSpawn later.
-            OperationsTimeSpanProvider.SetTimer();
+            //Settings DateTime to get operations TimeSpan later.
+            TimeSpanProvider.SetDateTime();
 
-            //Storing the current data in settings.json file to restore it later.
+            //Storing the present data in settings.json file to restore it to the original state later.
             string PreviousPluginSettingsFileData = File.ReadAllText(PluginSettingsFileDirectory);
 
-            //FirstGlobalEntryList EntryListStringBuilder to create a list of globals.
+            //FirstGlobalEntryListStringBuilder ListStringBuilder class to create a list of globals.
             ListStringBuilder FirstGlobalEntryListStringBuilder = new ListStringBuilder(new StringBuilder("return {\n"), "\t\"{0}\",\n");
 
-            //Iteration counters.
+            //Matching all strings in executable file that has 2 or more alphanumerical + underscore characters in them.
             int IteratedMatchCount = 0;
             int DuplicateMatchCount = 0;
-
-            //Matching all strings in executable file that has 2 or more alphanumerical + underscore characters in them.
             UncategorizedMethodsProvider.CheckMatches(Regex.Matches(File.ReadAllText(RobloxStudioExecutableDirectory), @"[a-zA-Z_][0-9a-zA-Z_]+", RegexOptions.Compiled), ref FirstGlobalEntryListStringBuilder, ref IteratedMatchCount, ref DuplicateMatchCount);
 
             {
                 ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 2, 2, "Roblox Studio Executable file alphanumerical character pattern check finished.\nMoving to runtime Luau global enviroment check. Running Roblox Studio Executable file, please do not interfere.");
             }
 
-            //Creating temporary XML place file and plugin file to run an enviroment check.
+            //Creating a temporary Roblox XML Place file and a plugin file to run an enviroment check.
             TemporaryDirectoryProvider.CreatePluginFile(DirectoryProvider.GetDirectory(DirectoryProvider.DirectoryType.LocalPluginsFolder, RobloxFolderDirectory));
             string TemporaryPlaceFileDirectory = TemporaryDirectoryProvider.CreateRobloxPlaceXMLFile(ref FirstGlobalEntryListStringBuilder);
 
-            //FinalGlobalEntryList to save the final list of globals.
+            //FinalGlobalEntryList to save the final list of globals at the end.
             string FinalGlobalEntryList = string.Empty;
 
-            //Adding an ProcessExit Eventhandler to prevent temporary files staying forever.
+            //Adding an ProcessExit Eventhandler to prevent temporary files from staying forever when program exists in the middle of process.
             AppDomain.CurrentDomain.ProcessExit += (object SenderObject, EventArgs EventArguments) => {
                 TemporaryDirectoryProvider.ClearDirectories();
             };
@@ -126,13 +124,13 @@ namespace RLGVF
             //Just in case something unexpected happens.
             try
             {
-                //Process to run RobloxStudioBeta executable with given parameters later.
+                //Process to run Roblox Studio executable with given arguments.
                 using (Process RobloxStudioRuntimeLuauGlobalEnviromentCheckProcess = new Process()
                 {
                     StartInfo = new ProcessStartInfo(RobloxStudioExecutableDirectory, $"-task EditFile -localPlaceFile {TemporaryPlaceFileDirectory}")
                 })
                 {
-                    //FileSystemWatcher to track settings.json file changes.
+                    //FileSystemWatcher to track plugin settings file changes.
                     using (FileSystemWatcher PluginSettingsFolderDirectoryWatcher = new FileSystemWatcher(PluginSettingsFolderDirectory, "settings.json")
                     {
                         EnableRaisingEvents = true,
@@ -184,12 +182,13 @@ namespace RLGVF
                 throw new ExitProgramException(ExitProgramException.ExitProgramExceptionFormat.UnexpectedException, 0, ExceptionObject.Message).ThrowException();
             }
 
+            //Finalizing everything.
             File.WriteAllText(SaveFileDirectory, FinalGlobalEntryList);
             File.WriteAllText(PluginSettingsFileDirectory, PreviousPluginSettingsFileData);
             TemporaryDirectoryProvider.ClearDirectories();
 
             {
-                TimeSpan OperationsTimeSpan = OperationsTimeSpanProvider.GetTimeSpan();
+                TimeSpan OperationsTimeSpan = TimeSpanProvider.GetTimeSpan();
 
                 ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.OperationsTimeSpan, 0, 2, OperationsTimeSpan.Hours.ToString(), OperationsTimeSpan.Minutes.ToString(), OperationsTimeSpan.Seconds.ToString(), OperationsTimeSpan.Milliseconds.ToString());
                 ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 2, $"List is saved to directory: {SaveFileDirectory}");
