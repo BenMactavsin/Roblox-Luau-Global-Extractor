@@ -51,7 +51,7 @@ namespace RLGVF.Methods
             switch (OutputType)
             {
                 case OutputFormatType.ProgramInformation:
-                    Console.Write($"{new string('\n', PrefixLineTerminatorCount)}{FormatArguments[0]} ({FormatArguments[1]})\nFor instructions on how to use the program, please go to this link:\n{FormatArguments[2]}{new string('\n', PostfixLineTerminatorCount)}");
+                    Console.Write($"{new string('\n', PrefixLineTerminatorCount)}{FormatArguments[0]} ({FormatArguments[1]})\n\nFor instructions on how to use the program, please go to this link:\n{FormatArguments[2]}{new string('\n', PostfixLineTerminatorCount)}");
                     break;
 
                 case OutputFormatType.DirectorySelection:
