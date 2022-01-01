@@ -19,12 +19,12 @@ namespace RLGVF
         static void Main(string[] ExecutableArguments)
         {
             Settings ProgramSettings = Settings.Default;
-            ConsoleOutputProvider.Output(OutputFormatType.ProgramInformation, 0, 2, ProgramSettings.ProgramName, ProgramSettings.VersionInfo, ProgramSettings.InstructionsLink);
+            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.ProgramInformation, 0, 2, ProgramSettings.ProgramName, ProgramSettings.VersionInfo, ProgramSettings.InstructionsLink);
 
             //Creating and getting necessary directories.
             string RobloxFolderDirectory = string.Empty, RobloxStudioExecutableDirectory = string.Empty, SaveFileDirectory = string.Empty;
 
-            ConsoleOutputProvider.Output(OutputFormatType.DirectorySelection, 0, 1, "Roblox folder", "FolderBrowserDialog");
+            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.DirectorySelection, 0, 1, "Roblox folder", "FolderBrowserDialog");
 
             using (FolderBrowserDialog OpenRobloxFolderDirectoryDialog = new FolderBrowserDialog()
             {
@@ -35,11 +35,11 @@ namespace RLGVF
                 ClientGuid = new Guid(ProgramSettings.FolderBrowserDialogGuid),
             })
             {
-                RobloxFolderDirectory = UncategorizedMethodsProvider.ShowDialog(OpenRobloxFolderDirectoryDialog, new ExitProgramException(ExitProgramExceptionFormat.InvalidProvidedDirectory, 0, "Roblox folder"));
+                RobloxFolderDirectory = UncategorizedMethodsProvider.ShowDialog(OpenRobloxFolderDirectoryDialog, new ExitProgramException(ExitProgramException.ExitProgramExceptionFormat.InvalidProvidedDirectory, 0, "Roblox folder"));
             }
 
-            ConsoleOutputProvider.Output(OutputFormatType.String, 0, 2, RobloxFolderDirectory);
-            ConsoleOutputProvider.Output(OutputFormatType.DirectorySelection, 0, 1, "Roblox Studio Executable file", "OpenFileDialog");
+            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 2, RobloxFolderDirectory);
+            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.DirectorySelection, 0, 1, "Roblox Studio Executable file", "OpenFileDialog");
 
             using (OpenFileDialog OpenRobloxStudioExecutableDirectoryDialog = new OpenFileDialog()
             {
@@ -54,11 +54,11 @@ namespace RLGVF
                 ClientGuid = new Guid(ProgramSettings.OpenFileDialogGuid)
             })
             {
-                RobloxStudioExecutableDirectory = UncategorizedMethodsProvider.ShowDialog(OpenRobloxStudioExecutableDirectoryDialog, new ExitProgramException(ExitProgramExceptionFormat.InvalidProvidedDirectory, 0, "Roblox Studio Executable file"));
+                RobloxStudioExecutableDirectory = UncategorizedMethodsProvider.ShowDialog(OpenRobloxStudioExecutableDirectoryDialog, new ExitProgramException(ExitProgramException.ExitProgramExceptionFormat.InvalidProvidedDirectory, 0, "Roblox Studio Executable file"));
             }
 
-            ConsoleOutputProvider.Output(OutputFormatType.String, 0, 2, RobloxStudioExecutableDirectory);
-            ConsoleOutputProvider.Output(OutputFormatType.DirectorySelection, 0, 1, "save file", "SaveFileDialog");
+            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 2, RobloxStudioExecutableDirectory);
+            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.DirectorySelection, 0, 1, "save file", "SaveFileDialog");
 
             using (SaveFileDialog SaveFinalResultDirectoryDialog = new SaveFileDialog()
             {
@@ -73,14 +73,14 @@ namespace RLGVF
                 ClientGuid = new Guid(ProgramSettings.SaveFileDialogGuid)
             })
             {
-                SaveFileDirectory = UncategorizedMethodsProvider.ShowDialog(SaveFinalResultDirectoryDialog, new ExitProgramException(ExitProgramExceptionFormat.InvalidProvidedDirectory, 0, "save file"));
+                SaveFileDirectory = UncategorizedMethodsProvider.ShowDialog(SaveFinalResultDirectoryDialog, new ExitProgramException(ExitProgramException.ExitProgramExceptionFormat.InvalidProvidedDirectory, 0, "save file"));
             }
 
-            ConsoleOutputProvider.Output(OutputFormatType.String, 0, 2, SaveFileDirectory);
-            ConsoleOutputProvider.Output(OutputFormatType.String, 0, 2, "Necessary directories found. Starting operations.");
+            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 2, SaveFileDirectory);
+            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 2, "Necessary directories found. Starting operations.");
 
-            string PluginSettingsFolderDirectory = DirectoryProvider.GetPluginSettingsFolderDirectory(RobloxFolderDirectory);
-            string PluginSettingsFileDirectory = DirectoryProvider.GetPluginSettingsFileDirectory(PluginSettingsFolderDirectory);
+            string PluginSettingsFolderDirectory = DirectoryProvider.GetDirectory(DirectoryProvider.DirectoryType.PluginSettingsFolder, RobloxFolderDirectory);
+            string PluginSettingsFileDirectory = DirectoryProvider.GetDirectory(DirectoryProvider.DirectoryType.PluginSettingsFile, PluginSettingsFolderDirectory);
 
             //DateTime to get operations TimeSpawn later.
             OperationsTimeSpanProvider.SetTimer();
@@ -98,77 +98,91 @@ namespace RLGVF
             //Matching all strings in executable file that has 2 or more alphanumerical + underscore characters in them.
             UncategorizedMethodsProvider.CheckMatches(Regex.Matches(File.ReadAllText(RobloxStudioExecutableDirectory), @"[a-zA-Z_][0-9a-zA-Z_]+", RegexOptions.Compiled), ref FirstGlobalEntryListStringBuilder, ref IteratedMatchCount, ref DuplicateMatchCount);
 
-            ConsoleOutputProvider.Output(OutputFormatType.String, 2, 2, "Roblox Studio Executable file alphanumerical character pattern check finished.\nMoving to runtime Luau global enviroment check. Running Roblox Studio Executable file, please do not interfere.");
+            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 2, 2, "Roblox Studio Executable file alphanumerical character pattern check finished.\nMoving to runtime Luau global enviroment check. Running Roblox Studio Executable file, please do not interfere.");
 
             //Creating temporary XML place file and plugin file to run an enviroment check.
+            TemporaryDirectoryProvider.CreatePluginFile(DirectoryProvider.GetDirectory(DirectoryProvider.DirectoryType.LocalPluginsFolder, RobloxFolderDirectory));
             string TemporaryPlaceFileDirectory = TemporaryDirectoryProvider.CreateRobloxPlaceXMLFile(ref FirstGlobalEntryListStringBuilder);
-            TemporaryDirectoryProvider.CreatePluginFile(Path.Combine(RobloxFolderDirectory, "Plugins"));
 
             //FinalGlobalEntryList to save the final list of globals.
             string FinalGlobalEntryList = string.Empty;
 
-            //Process to run RobloxStudioBeta executable with given parameters later.
-            using (Process RobloxStudioRuntimeLuauGlobalEnviromentCheckProcess = new Process()
+            //Adding an ProcessExit Eventhandler to prevent temporary files staying forever.
+            AppDomain.CurrentDomain.ProcessExit += (object SenderObject, EventArgs EventArguments) => {
+                TemporaryDirectoryProvider.ClearDirectories();
+            };
+
+            //Just in case.
+            try
             {
-                StartInfo = new ProcessStartInfo(RobloxStudioExecutableDirectory, $"-task EditFile -localPlaceFile {TemporaryPlaceFileDirectory}")
-            })
-            {
-                //FileSystemWatcher to track settings.json file changes.
-                using (FileSystemWatcher PluginSettingsFolderDirectoryWatcher = new FileSystemWatcher(PluginSettingsFolderDirectory, "settings.json")
+                //Process to run RobloxStudioBeta executable with given parameters later.
+                using (Process RobloxStudioRuntimeLuauGlobalEnviromentCheckProcess = new Process()
                 {
-                    EnableRaisingEvents = true,
-                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size,
-                    IncludeSubdirectories = false
+                    StartInfo = new ProcessStartInfo(RobloxStudioExecutableDirectory, $"-task EditFile -localPlaceFile {TemporaryPlaceFileDirectory}")
                 })
                 {
-                    PluginSettingsFolderDirectoryWatcher.Changed += (object SenderSource, FileSystemEventArgs EventArguments) =>
+                    //FileSystemWatcher to track settings.json file changes.
+                    using (FileSystemWatcher PluginSettingsFolderDirectoryWatcher = new FileSystemWatcher(PluginSettingsFolderDirectory, "settings.json")
                     {
-                        using (FileStream PluginSettingsFileStream = new FileStream(EventArguments.FullPath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
+                        EnableRaisingEvents = true,
+                        NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size,
+                        IncludeSubdirectories = false
+                    })
+                    {
+                        PluginSettingsFolderDirectoryWatcher.Changed += (object SenderSource, FileSystemEventArgs EventArguments) =>
                         {
-                            using (StreamReader PluginSettingsFileStreamReader = new StreamReader(PluginSettingsFileStream))
+                            using (FileStream PluginSettingsFileStream = new FileStream(EventArguments.FullPath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
                             {
-                                try
+                                using (StreamReader PluginSettingsFileStreamReader = new StreamReader(PluginSettingsFileStream))
                                 {
-                                    Dictionary<string, JsonElement> PluginSettingsFileJsonData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(PluginSettingsFileStreamReader.ReadToEnd());
-
-                                    if (PluginSettingsFileJsonData.ContainsKey("GlobalList") == true && PluginSettingsFileJsonData.ContainsKey("GlobalListCheckFinished") == true && PluginSettingsFileJsonData["GlobalListCheckFinished"].GetBoolean() == true)
+                                    try
                                     {
-                                        PluginSettingsFolderDirectoryWatcher.EnableRaisingEvents = false;
-                                        FinalGlobalEntryList = PluginSettingsFileJsonData["GlobalList"].GetString();
+                                        Dictionary<string, JsonElement> PluginSettingsFileJsonData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(PluginSettingsFileStreamReader.ReadToEnd());
 
-                                        try
+                                        if (PluginSettingsFileJsonData.ContainsKey("GlobalList") == true && PluginSettingsFileJsonData.ContainsKey("GlobalListCheckFinished") == true && PluginSettingsFileJsonData["GlobalListCheckFinished"].GetBoolean() == true)
                                         {
-                                            RobloxStudioRuntimeLuauGlobalEnviromentCheckProcess.Kill();
-                                        }
-                                        catch (Win32Exception)
-                                        {
-                                            //Apperently calling Process.Kill() on a process you started can throw Win32Exception.
+                                            PluginSettingsFolderDirectoryWatcher.EnableRaisingEvents = false;
+                                            FinalGlobalEntryList = PluginSettingsFileJsonData["GlobalList"].GetString();
+
+                                            try
+                                            {
+                                                RobloxStudioRuntimeLuauGlobalEnviromentCheckProcess.Kill();
+                                            }
+                                            catch (Win32Exception)
+                                            {
+                                                //Apperently calling Process.Kill() on a process you started can throw Win32Exception.
+                                            }
                                         }
                                     }
-                                }
-                                catch (JsonException)
-                                {
-                                    //Better luck next time.
+                                    catch (JsonException)
+                                    {
+                                        //Better luck next time.
+                                    }
                                 }
                             }
-                        }
-                    };
+                        };
 
-                    RobloxStudioRuntimeLuauGlobalEnviromentCheckProcess.Start();
-                    RobloxStudioRuntimeLuauGlobalEnviromentCheckProcess.WaitForExit();
+                        RobloxStudioRuntimeLuauGlobalEnviromentCheckProcess.Start();
+                        RobloxStudioRuntimeLuauGlobalEnviromentCheckProcess.WaitForExit();
+                    }
                 }
+            }
+            catch (Exception ExceptionObject)
+            {
+                TemporaryDirectoryProvider.ClearDirectories();
+                throw new ExitProgramException(ExitProgramException.ExitProgramExceptionFormat.UnexpectedException, 0, ExceptionObject.Message).ThrowException();
             }
 
             File.WriteAllText(SaveFileDirectory, FinalGlobalEntryList);
             File.WriteAllText(PluginSettingsFileDirectory, PreviousPluginSettingsFileData);
 
             TimeSpan OperationsTimeSpan = OperationsTimeSpanProvider.GetTimeSpan();
-            ConsoleOutputProvider.Output(OutputFormatType.OperationsTimeSpan, 0, 2, OperationsTimeSpan.Hours, OperationsTimeSpan.Minutes, OperationsTimeSpan.Seconds, OperationsTimeSpan.Milliseconds);
-            ConsoleOutputProvider.Output(OutputFormatType.String, 0, 2, $"List is saved to directory: {SaveFileDirectory}");
+            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.OperationsTimeSpan, 0, 2, OperationsTimeSpan.Hours, OperationsTimeSpan.Minutes, OperationsTimeSpan.Seconds, OperationsTimeSpan.Milliseconds);
+            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 2, $"List is saved to directory: {SaveFileDirectory}");
 
             TemporaryDirectoryProvider.ClearDirectories();
 
-            throw new ExitProgramException(ExitProgramExceptionFormat.AwaitExit, 0).ThrowException();
+            throw new ExitProgramException(ExitProgramException.ExitProgramExceptionFormat.AwaitExit, 0).ThrowException();
         }
     }
 }
