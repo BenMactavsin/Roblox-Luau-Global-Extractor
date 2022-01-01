@@ -4,5 +4,6 @@
 **/src/Properties/PublishProfiles
 **/src/.vs
 **/.vs
+**/.vscode
 .fake
 .ionide
