@@ -34,7 +34,7 @@ namespace RLGVF.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("v.1.3.Beta")]
+        [global::System.Configuration.DefaultSettingValueAttribute("v1.3.Beta")]
         public string VersionInfo {
             get {
                 return ((string)(this["VersionInfo"]));
