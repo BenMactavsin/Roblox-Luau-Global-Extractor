@@ -7,25 +7,17 @@ using System.Collections.Generic;
 
 namespace RLGVF.Methods
 {
-    public enum ExitProgramExceptionFormat: byte
-    {
-        AwaitExit = 0,
-        InvalidProvidedDirectory = 1,
-        NonExistentDirectory = 2,
-        TooManySimilarFiles = 3,
-    }
-
-    public enum OutputFormatType: byte
-    {
-        ProgramInformation = 0,
-        DirectorySelection = 1,
-        OperationsTimeSpan = 2,
-        String = 3,
-        AwaitInput = 4
-    }
-
     public static class ConsoleOutputProvider
     {
+        public enum OutputFormatType : byte
+        {
+            ProgramInformation = 0,
+            DirectorySelection = 1,
+            OperationsTimeSpan = 2,
+            String = 3,
+            AwaitInput = 4
+        }
+
         public static void Output(OutputFormatType OutputType, byte PrefixLineTerminatorCount = 0, byte PostfixLineTerminatorCount = 0, params object[] FormatArguments)
         {
             switch (OutputType)
@@ -66,6 +58,15 @@ namespace RLGVF.Methods
         private int exitCode;
         private string[] formatArguments;
 
+        public enum ExitProgramExceptionFormat : byte
+        {
+            AwaitExit = 0,
+            InvalidProvidedDirectory = 1,
+            NonExistentDirectory = 2,
+            TooManySimilarFiles = 3,
+            UnexpectedException = 4
+        }
+
         /// <summary> 
         /// Constructs an <see cref="RLGVF.Methods.ExitProgramException"/> with given <paramref name="ExitCode"/> and <paramref name="ConsoleOutputList"/> parameters.
         /// </summary>
@@ -83,22 +84,27 @@ namespace RLGVF.Methods
             switch (exceptionFormat)
             {
                 case ExitProgramExceptionFormat.AwaitExit:
-                    ConsoleOutputProvider.Output(OutputFormatType.AwaitInput, 0, 0, "Press ANY key to exit the program.");
+                    ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.AwaitInput, 0, 0, "Press ANY key to exit the program.");
                     break;
 
                 case ExitProgramExceptionFormat.InvalidProvidedDirectory:
-                    ConsoleOutputProvider.Output(OutputFormatType.String, 0, 0, $"Failed to read directory for {formatArguments[0]}. ");
-                    ConsoleOutputProvider.Output(OutputFormatType.AwaitInput, 0, 0, "Press ANY key to exit the program.");
+                    ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 0, $"Failed to read directory for {formatArguments[0]}. ");
+                    ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.AwaitInput, 0, 0, "Press ANY key to exit the program.");
                     break;
 
                 case ExitProgramExceptionFormat.NonExistentDirectory:
-                    ConsoleOutputProvider.Output(OutputFormatType.String, 0, 0, $"Failed to find directory for {formatArguments[0]} in directory {formatArguments[1]}. ");
-                    ConsoleOutputProvider.Output(OutputFormatType.AwaitInput, 0, 0, "Press ANY key to exit the program.");
+                    ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 0, $"Failed to find directory for {formatArguments[0]} in directory {formatArguments[1]}. ");
+                    ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.AwaitInput, 0, 0, "Press ANY key to exit the program.");
                     break;
 
                 case ExitProgramExceptionFormat.TooManySimilarFiles:
-                    ConsoleOutputProvider.Output(OutputFormatType.String, 0, 0, $"Directory {formatArguments[0]} has too many files that follows \"{formatArguments[1]}\" pattern. ");
-                    ConsoleOutputProvider.Output(OutputFormatType.AwaitInput, 0, 0, "Press ANY key to exit the program.");
+                    ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 0, $"Directory {formatArguments[0]} has too many files that follows \"{formatArguments[1]}\" pattern. ");
+                    ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.AwaitInput, 0, 0, "Press ANY key to exit the program.");
+                    break;
+
+                case ExitProgramExceptionFormat.UnexpectedException:
+                    ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 2, $"Program exited unexpectedly with error: {formatArguments[0]} ");
+                    ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.AwaitInput, 0, 0, "Press ANY key to exit the program.");
                     break;
 
                 default:
@@ -157,7 +163,6 @@ namespace RLGVF.Methods
         /// Constructs an <see cref="RLGVF.Methods.ListStringBuilder"/> class with given <paramref name="StringBuilder"/> parameter.
         /// </summary>
         /// <param name="StringBuilder">Represents a <see cref="System.Text.StringBuilder"/> class value that will be used by the <see cref="RLGVF.Methods.ListStringBuilder"/> class internally.</param>
-        /// <
         public ListStringBuilder(StringBuilder StringBuilder)
         {
             stringBuilderObject = StringBuilder;
@@ -184,18 +189,18 @@ namespace RLGVF.Methods
         /// <param name="Entry">Represents a <see cref="string"/> value that will formated into the <see cref="RLGVF.Methods.ListStringBuilder.EntryFormat"/>.</param>
         public ListStringBuilder AddEntry(string Entry)
         {
-            StringBuilder.Append(entryPrefixString).Append(Entry).Append(entryPostfixString);
+            stringBuilderObject.Append(entryPrefixString).Append(Entry).Append(entryPostfixString);
 
             return this;
         }
 
         /// <summary> 
-        /// Appends given <paramref name="String"/> to the <see cref="RLGVF.Methods.ListStringBuilder.StringBuilder"/>'s mutable <see cref="string"/> while ignoring <see cref="RLGVF.Methods.ListStringBuilder.EntryFormat"/>. .
+        /// Appends given <paramref name="String"/> to the <see cref="RLGVF.Methods.ListStringBuilder.StringBuilder"/>'s mutable <see cref="string"/> while ignoring <see cref="RLGVF.Methods.ListStringBuilder.EntryFormat"/>.
         /// </summary>
         /// <param name="String">Represents a <see cref="string"/> value that will be added to the end of the <see cref="RLGVF.Methods.ListStringBuilder.StringBuilder"/>'s mutable <see cref="string"/>.</param>
         public ListStringBuilder Add(string String)
         {
-            StringBuilder.Append(String);
+            stringBuilderObject.Append(String);
 
             return this;
         }
@@ -317,7 +322,7 @@ plugin:SetSetting(""GlobalListCheckFinished"", true)");
                 }
             }
 
-            throw new ExitProgramException(ExitProgramExceptionFormat.TooManySimilarFiles, 0, FolderDirectory, "TemporaryPlugin_XXX.lua").ThrowException();
+            throw new ExitProgramException(ExitProgramException.ExitProgramExceptionFormat.TooManySimilarFiles, 0, FolderDirectory, "TemporaryPlugin_XXX.lua").ThrowException();
         }
 
         //Clears TemporaryDirectoryList and directories in TemporaryDirectoryList.
@@ -342,36 +347,61 @@ plugin:SetSetting(""GlobalListCheckFinished"", true)");
     //Stores methods for providing Directories.
     public static class DirectoryProvider
     {
-        //Returns folder directory that setting.json file is stored in.
-        public static string GetPluginSettingsFolderDirectory(string FolderDirectory)
+        public enum DirectoryType: byte
         {
-            foreach (string DirectoryPath in Directory.GetDirectories(FolderDirectory))
-            {
-                if (Regex.Match(new DirectoryInfo(DirectoryPath).Name, "^[1-9][0-9]*$").Success == true)
-                {
-                    string PluginSettingsFolderDirectory = Path.Combine(DirectoryPath, "InstalledPlugins", "0");
-
-                    if (Directory.Exists(PluginSettingsFolderDirectory) == true)
-                    {
-                        return PluginSettingsFolderDirectory;
-                    }
-                }
-            }
-
-            throw new ExitProgramException(ExitProgramExceptionFormat.NonExistentDirectory, 0, "local plugin settings folder", FolderDirectory).ThrowException();
+            PluginSettingsFolder = 0,
+            PluginSettingsFile = 1,
+            LocalPluginsFolder = 2
         }
 
-        //Returns directory for setting.json file.
-        public static string GetPluginSettingsFileDirectory(string FolderDirectory)
+        public static string GetDirectory(DirectoryType RequiredDirectoryType, string FolderDirectory)
         {
-            string PluginSettingsFileDirectory = Path.Combine(FolderDirectory, "settings.json");
+            string ErrorMessage = string.Empty;
 
-            if (File.Exists(PluginSettingsFileDirectory) == true)
+            switch (RequiredDirectoryType)
             {
-                return PluginSettingsFileDirectory;
+                case DirectoryType.PluginSettingsFolder:
+                    ErrorMessage = "local plugin settings folder";
+
+                    foreach (string DirectoryPath in Directory.GetDirectories(FolderDirectory))
+                    {
+                        if (Regex.Match(new DirectoryInfo(DirectoryPath).Name, "^[1-9][0-9]*$").Success == true)
+                        {
+                            string PluginSettingsFolderDirectory = Path.Combine(DirectoryPath, "InstalledPlugins", "0");
+
+                            if (Directory.Exists(PluginSettingsFolderDirectory) == true)
+                            {
+                                return PluginSettingsFolderDirectory;
+                            }
+                        }
+                    }
+
+                    break;
+
+                case DirectoryType.PluginSettingsFile:
+                    ErrorMessage = "local plugin settings file";
+                    string PluginSettingsFileDirectory = Path.Combine(FolderDirectory, "settings.json");
+
+                    if (File.Exists(PluginSettingsFileDirectory) == true)
+                    {
+                        return PluginSettingsFileDirectory;
+                    }
+
+                    break;
+
+                case DirectoryType.LocalPluginsFolder:
+                    ErrorMessage = "local plugins folder";
+                    string LocalPluginsFolderDirectory = Path.Combine(FolderDirectory, "Plugins");
+
+                    if (Directory.Exists(LocalPluginsFolderDirectory) == true)
+                    {
+                        return LocalPluginsFolderDirectory;
+                    }
+
+                    break;
             }
 
-            throw new ExitProgramException(ExitProgramExceptionFormat.NonExistentDirectory, 0, "local plugin settings file", FolderDirectory).ThrowException();
+            throw new ExitProgramException(ExitProgramException.ExitProgramExceptionFormat.NonExistentDirectory, 0, ErrorMessage, FolderDirectory).ThrowException();
         }
     }
 
@@ -399,7 +429,7 @@ plugin:SetSetting(""GlobalListCheckFinished"", true)");
         //Checks MatchCollection and modifies EntryListStringBuilder, IterationCount and DuplicateMatchCount parameters in process.
         public static void CheckMatches(MatchCollection MatchCollection, ref ListStringBuilder ListStringBuilder, ref int IteratedMatchCount, ref int DuplicateMatchCount)
         {
-            ConsoleOutputProvider.Output(OutputFormatType.String, 0, 1, $"Found {MatchCollection.Count} regular expression matches.");
+            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 1, $"Found {MatchCollection.Count} regular expression matches.");
 
             Dictionary<string, bool> GlobalDictionary = new Dictionary<string, bool>();
 
@@ -420,7 +450,7 @@ plugin:SetSetting(""GlobalListCheckFinished"", true)");
                     DuplicateMatchCount++;
                 }
 
-                ConsoleOutputProvider.Output(OutputFormatType.String, 0, 0, $"\rIterated through {IteratedMatchCount}/{MatchCollection.Count} matches.");
+                ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 0, $"\rIterated through {IteratedMatchCount}/{MatchCollection.Count} matches.");
             }
         }
 
