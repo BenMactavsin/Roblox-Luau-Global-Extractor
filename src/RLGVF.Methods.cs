@@ -7,17 +7,45 @@ using System.Collections.Generic;
 
 namespace RLGVF.Methods
 {
+    /// <summary> 
+    /// Represents a static class for console output functionality that uses <see cref="System.Console"/> class internally.
+    /// </summary>
     public static class ConsoleOutputProvider
     {
+        /// <summary> 
+        /// Provides enumrated values that <see cref="RLGVF.Methods.ConsoleOutputProvider.Output(OutputFormatType, byte, byte, string[])"/> will use to format output messages.
+        /// </summary>
         public enum OutputFormatType : byte
         {
+            /// <summary> 
+            /// Specifies that <see cref="RLGVF.Methods.ConsoleOutputProvider.Output(OutputFormatType, byte, byte, string[])"/> will output program information on console. This option accepts 3 <see href="FormatArguments"/>.
+            /// </summary>
             ProgramInformation = 0,
+            /// <summary> 
+            /// Specifies that <see cref="RLGVF.Methods.ConsoleOutputProvider.Output(OutputFormatType, byte, byte, string[])"/> will output a message on console to specify that what type of file or folder user needs to select on the provided <see cref="System.Windows.Forms.CommonDialog"/>. This option accepts 2 <see href="FormatArguments"/>.
+            /// </summary>
             DirectorySelection = 1,
+            /// <summary> 
+            /// Specifies that <see cref="RLGVF.Methods.ConsoleOutputProvider.Output(OutputFormatType, byte, byte, string[])"/> will output operations execution time on console. This option accepts 4 <see href="FormatArguments"/>.
+            /// </summary>
             OperationsTimeSpan = 2,
+            /// <summary> 
+            /// Specifies that <see cref="RLGVF.Methods.ConsoleOutputProvider.Output(OutputFormatType, byte, byte, string[])"/> will output a custom string on console. This option concats all provided <see href="FormatArguments"/> to a single string.
+            /// </summary>
             String = 3,
+            /// <summary> 
+            /// Specifies that <see cref="RLGVF.Methods.ConsoleOutputProvider.Output(OutputFormatType, byte, byte, string[])"/> will output a custom string on console and wait for an input. This option concats all provided <see href="FormatArguments"/> string.
+            /// </summary>
             AwaitInput = 4
         }
 
+        /// <summary> 
+        /// Outputs a message with given <paramref name="OutputType"/>, <paramref name="PrefixLineTerminatorCount"/>, <paramref name="PostfixLineTerminatorCount"/> and <paramref name="FormatArguments"/> parameters.
+        /// </summary>
+        /// <param name="OutputType">Represents an <see cref="RLGVF.Methods.ConsoleOutputProvider.OutputFormatType"/> value that will be used to determine the output message format.</param>
+        /// <param name="PrefixLineTerminatorCount">Represents a <see cref="byte"/> value that specifies the amount of newline characters that will be added before the string.</param>
+        /// <param name="PostfixLineTerminatorCount">Represents a <see cref="byte"/> value that specifies the amount of newline characters that will be added after the string.</param>
+        /// <param name="FormatArguments">Represents a variadic list of <see cref="string"/> values that will used depending on provided <paramref name="OutputType"/> parameter.</param>
         public static void Output(OutputFormatType OutputType, byte PrefixLineTerminatorCount = 0, byte PostfixLineTerminatorCount = 0, params string[] FormatArguments)
         {
             switch (OutputType)
@@ -50,7 +78,7 @@ namespace RLGVF.Methods
     }
 
     /// <summary> 
-    /// Represents an <see cref="System.Exception"/> exception that is thrown to indicate that program has exited properly.
+    /// Represents an <see cref="RLGVF.Methods.ExitProgramException"/> that is thrown to indicate that program has exited properly.
     /// </summary>
     public class ExitProgramException: Exception
     {
@@ -58,20 +86,39 @@ namespace RLGVF.Methods
         private int exitCode;
         private string[] formatArguments;
 
+        /// <summary> 
+        /// Provides enumrated values that <see cref="RLGVF.Methods.ExitProgramException.ThrowException"/> will use to format exit message on console.
+        /// </summary>
         public enum ExitProgramExceptionFormat : byte
         {
+            /// <summary> 
+            /// Specifies that <see cref="RLGVF.Methods.ExitProgramException.ThrowException"/> won't output any extra message on console. This option accepts 0 <see href="FormatArguments"/>.
+            /// </summary>
             AwaitExit = 0,
+            /// <summary> 
+            /// Specifies that <see cref="RLGVF.Methods.ExitProgramException.ThrowException"/> will output a message to specify that provided directory on <see cref="System.Windows.Forms.CommonDialog"/> is not valid. This option accepts 1 <see href="FormatArguments"/>.
+            /// </summary>
             InvalidProvidedDirectory = 1,
+            /// <summary> 
+            /// Specifies that <see cref="RLGVF.Methods.ExitProgramException.ThrowException"/> will output a message to specify that provided directory does not exist. This option accepts 2 <see href="FormatArguments"/>.
+            /// </summary>
             NonExistentDirectory = 2,
+            /// <summary> 
+            /// Specifies that <see cref="RLGVF.Methods.ExitProgramException.ThrowException"/> will output a message to specify that there are too many files that follow a specific file name pattern in the provided directory. This option accepts 2 <see href="FormatArguments"/>.
+            /// </summary>
             TooManySimilarFiles = 3,
+            /// <summary> 
+            /// Specifies that <see cref="RLGVF.Methods.ExitProgramException.ThrowException"/> will output a message to specify that program got an unexpected exception. This option accepts 1 <see href="FormatArguments"/>.
+            /// </summary>
             UnexpectedException = 4
         }
 
         /// <summary> 
-        /// Constructs an <see cref="RLGVF.Methods.ExitProgramException"/> with given <paramref name="ExitCode"/> and <paramref name="ConsoleOutputList"/> parameters.
+        /// Constructs an <see cref="RLGVF.Methods.ExitProgramException"/> with given <paramref name="ExceptionMessageFormat"/>, <paramref name="ExitCode"/> and <paramref name="FormatArguments"/> parameters.
         /// </summary>
-        /// <param name="ExitCode">Represents an <see cref="int"/> value that will be passed to <see cref="System.Environment.Exit(int)"/> method.</param>
-        /// <param name="ConsoleOutputList">Represents a variadic list of <see cref="string"/> values that will be outputed to console before exiting the program.</param>
+        /// <param name="ExceptionMessageFormat">Represents an <see cref="RLGVF.Methods.ExitProgramException.ExitProgramExceptionFormat"/> value that will be used to determine the exit message format.</param>
+        /// <param name="ExitCode">Represents an <see cref="int"/> value that will be passed to <see cref="System.Environment.Exit(int)"/> method when <see cref="RLGVF.Methods.ExitProgramException.ThrowException"/> method is called.</param>
+        /// <param name="FormatArguments">Represents a variadic list of <see cref="string"/> values that will be used while formatting the exit message.</param>
         public ExitProgramException(ExitProgramExceptionFormat ExceptionMessageFormat, int ExitCode = 0, params string[] FormatArguments)
         {
             exceptionFormat = ExceptionMessageFormat;
@@ -79,38 +126,37 @@ namespace RLGVF.Methods
             formatArguments = FormatArguments;
         }
 
+        /// <summary> 
+        /// Exits the program by calling <see cref="System.Environment.Exit(int)"/> method internally after waiting for input on console.
+        /// </summary>
         public ExitProgramException ThrowException()
         {
             switch (exceptionFormat)
             {
                 case ExitProgramExceptionFormat.AwaitExit:
-                    ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.AwaitInput, 0, 0, "Press ANY key to exit the program.");
                     break;
 
                 case ExitProgramExceptionFormat.InvalidProvidedDirectory:
                     ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 0, $"Failed to read directory for {formatArguments[0]}. ");
-                    ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.AwaitInput, 0, 0, "Press ANY key to exit the program.");
                     break;
 
                 case ExitProgramExceptionFormat.NonExistentDirectory:
                     ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 0, $"Failed to find directory for {formatArguments[0]} in directory {formatArguments[1]}. ");
-                    ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.AwaitInput, 0, 0, "Press ANY key to exit the program.");
                     break;
 
                 case ExitProgramExceptionFormat.TooManySimilarFiles:
                     ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 0, $"Directory {formatArguments[0]} has too many files that follows \"{formatArguments[1]}\" pattern. ");
-                    ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.AwaitInput, 0, 0, "Press ANY key to exit the program.");
                     break;
 
                 case ExitProgramExceptionFormat.UnexpectedException:
                     ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 2, $"Program exited unexpectedly with error: {formatArguments[0]} ");
-                    ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.AwaitInput, 0, 0, "Press ANY key to exit the program.");
                     break;
 
                 default:
                     break;
             }
 
+            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.AwaitInput, 0, 0, "Press ANY key to exit the program.");
             Environment.Exit(exitCode);
 
             return this;
@@ -214,13 +260,17 @@ namespace RLGVF.Methods
         }
     }
 
-    //Stores methods for providing and cleaning temporary directories.
+    /// <summary> 
+    /// Represents a static class for providing and creating temporary directories.
+    /// </summary>
     public static class TemporaryDirectoryProvider
     {
-        //Stores a generic list of temporary directories.
         private static List<string> TemporaryDirectoryList = new List<string>();
 
-        //Creates a temporary Roblox Place XML file.
+        /// <summary> 
+        /// Creates a temporary Roblox Place XML file (.rbxlx) by calling <see cref="System.IO.Path.GetTempFileName"/> method internally and formatting <paramref name="ListStringBuilder"/>'s mutable <see cref="string"/> to the file's contents.
+        /// </summary>
+        /// <param name="ListStringBuilder">Represents a <see cref="RLGVF.Methods.ListStringBuilder"/> value that will be turned into a <see cref="string"/> and formatted into file's contents.</param>
         public static string CreateRobloxPlaceXMLFile(ref ListStringBuilder ListStringBuilder)
         {
             string TemporaryDirectory = Path.GetTempFileName();
@@ -258,7 +308,11 @@ namespace RLGVF.Methods
             return TemporaryDirectory;
         }
 
-        //Creates a temporary plugin file.
+        /// <summary> 
+        /// Creates a temporary plugin file at provided <paramref name="FolderDirectory"/>.
+        /// </summary>
+        /// <param name="FolderDirectory">Represents a <see cref="string"/> value that points to a directory on the disk for temporary plugin file to be created in.</param>
+        /// <exception cref="RLGVF.Methods.ExitProgramException"></exception>
         public static string CreatePluginFile(string FolderDirectory)
         {
             byte FileNumber = 0;
@@ -325,7 +379,9 @@ plugin:SetSetting(""GlobalListCheckFinished"", true)");
             throw new ExitProgramException(ExitProgramException.ExitProgramExceptionFormat.TooManySimilarFiles, 0, FolderDirectory, "TemporaryPlugin_XXX.lua").ThrowException();
         }
 
-        //Clears TemporaryDirectoryList and directories in TemporaryDirectoryList.
+        /// <summary> 
+        /// Deletes all temporary files created by one of the methods in static <see cref="RLGVF.Methods.TemporaryDirectoryProvider"/> class.
+        /// </summary>
         public static void ClearDirectories()
         {
             foreach (string TemporaryDirectory in TemporaryDirectoryList)
@@ -344,16 +400,36 @@ plugin:SetSetting(""GlobalListCheckFinished"", true)");
         }
     }
 
-    //Stores methods for providing Directories.
+    /// <summary> 
+    /// Represents a static class for providing specific directories.
+    /// </summary>
     public static class DirectoryProvider
     {
+        /// <summary> 
+        /// Provides enumrated values that <see cref="RLGVF.Methods.DirectoryProvider.GetDirectory(DirectoryType, string)"/> will use to return a specific directory.
+        /// </summary>
         public enum DirectoryType: byte
         {
+            /// <summary> 
+            /// Specifies that <see cref="RLGVF.Methods.DirectoryProvider.GetDirectory(DirectoryType, string)"/> will return location of the plugin settings folder from provided <see href="FolderDirectory"/>.
+            /// </summary>
             PluginSettingsFolder = 0,
+            /// <summary> 
+            /// Specifies that <see cref="RLGVF.Methods.DirectoryProvider.GetDirectory(DirectoryType, string)"/> will return location of the plugin settings file from provided <see href="FolderDirectory"/>.
+            /// </summary>
             PluginSettingsFile = 1,
+            /// <summary> 
+            /// Specifies that <see cref="RLGVF.Methods.DirectoryProvider.GetDirectory(DirectoryType, string)"/> will return location of the local plugin folder from provided <see href="FolderDirectory"/>.
+            /// </summary>
             LocalPluginsFolder = 2
         }
 
+        /// <summary> 
+        /// Returns a directory with requested <paramref name="RequiredDirectoryType"/> at the given <paramref name="FolderDirectory"/>.
+        /// </summary>
+        /// <param name="RequiredDirectoryType">Represents a <see cref="RLGVF.Methods.DirectoryProvider.DirectoryType"/> value that method will use to get a specific required directory.</param>
+        /// <param name="FolderDirectory">Represents a <see cref="string"/> value that points to a directory that method will search the required directory in.</param>
+        /// <exception cref="RLGVF.Methods.ExitProgramException"></exception>
         public static string GetDirectory(DirectoryType RequiredDirectoryType, string FolderDirectory)
         {
             string ErrorMessage = string.Empty;
@@ -405,31 +481,47 @@ plugin:SetSetting(""GlobalListCheckFinished"", true)");
         }
     }
 
-    //Stores methods for getting TimeSpan between 2 DateTimes.
-    public static class OperationsTimeSpanProvider
+    /// <summary> 
+    /// Represents a static class for getting <see cref="System.TimeSpan"/> between 2 <see cref="System.DateTime"/> structs.
+    /// </summary>
+    public static class TimeSpanProvider
     {
-        private static DateTime SetDateTime = DateTime.Now;
+        private static DateTime InternalDateTime = DateTime.Now;
 
-        //Sets SetDateTime to current Datetime.
-        public static void SetTimer()
+        /// <summary> 
+        /// Sets the internal <see cref="System.DateTime"/> value to the current <see cref="DateTime"/>.
+        /// </summary>
+        public static void SetDateTime()
         {
-            SetDateTime = DateTime.Now;
+            InternalDateTime = DateTime.Now;
         }
 
-        //Gets TimeSpan between current Datetime and SetDateTime.
+        /// <summary> 
+        /// Returns a <see cref="System.TimeSpan"/> by subtracting current <see cref="DateTime"/> value from internally saved <see cref="DateTime"/> that was created with <see cref="RLGVF.Methods.TimeSpanProvider.SetDateTime"/>.
+        /// </summary>
         public static TimeSpan GetTimeSpan()
         {
-            return DateTime.Now - SetDateTime;
+            return DateTime.Now - InternalDateTime;
         }
     }
 
-    //Stores methods that does not belong to a specific category.
+    /// <summary> 
+    /// Represents a static class for storing methods that does not belong to a specific directory.
+    /// </summary>
     public static class UncategorizedMethodsProvider
     {
-        //Checks MatchCollection and modifies EntryListStringBuilder, IterationCount and DuplicateMatchCount parameters in process.
+        /// <summary> 
+        /// Goes through all the <see cref="System.Text.RegularExpressions.Match"/> objects in provided <paramref name="MatchCollection"/> and appends <paramref name="ListStringBuilder"/>'s mutable <see cref="string"/> by calling <see cref="RLGVF.Methods.ListStringBuilder.AddEntry(string)"/> after each successful iteration.
+        /// </summary>
+        /// <param name="MatchCollection">Represents a <see cref="System.Text.RegularExpressions.MatchCollection"/> value that will be iterated through.</param>
+        /// <param name="ListStringBuilder">Represents a <see cref="RLGVF.Methods.ListStringBuilder"/> value that will be called <see cref="RLGVF.Methods.ListStringBuilder.AddEntry(string)"/> method on after every successful iteration.</param>
+        /// <param name="IteratedMatchCount">Represents a <see cref="int"/> value that will be incremented after every iteration.</param>
+        /// <param name="DuplicateMatchCount">Represents a <see cref="int"/> value that will be incremented after every failed iteration.</param>
         public static void CheckMatches(MatchCollection MatchCollection, ref ListStringBuilder ListStringBuilder, ref int IteratedMatchCount, ref int DuplicateMatchCount)
         {
-            ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 1, $"Found {MatchCollection.Count} regular expression matches.");
+            {
+                ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 1, $"Found {MatchCollection.Count} regular expression matches.");
+            }
 
             Dictionary<string, bool> GlobalDictionary = new Dictionary<string, bool>();
 
@@ -450,11 +542,18 @@ plugin:SetSetting(""GlobalListCheckFinished"", true)");
                     DuplicateMatchCount++;
                 }
 
-                ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 0, $"\rIterated through {IteratedMatchCount}/{MatchCollection.Count} matches.");
+                {
+                    ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 0, $"\rIterated through {IteratedMatchCount}/{MatchCollection.Count} matches.");
+                }
             }
         }
 
-        //Returns FileDialog path if DialogResult is OK, exists the program if otherwise.
+        /// <summary> 
+        /// Returns the provided directory from <see cref="System.Windows.Forms.CommonDialog.ShowDialog"/> if <see cref="System.Windows.Forms.DialogResult"/> equals <see cref="System.Windows.Forms.DialogResult.OK"/>.
+        /// </summary>
+        /// <param name="Dialog">Represents a <see cref="System.Windows.Forms.FileDialog"/> value that will be shown to user.</param>
+        /// <param name="ExceptionObject">Represents a <see cref="RLGVF.Methods.ExitProgramException"/> value that will be thrown if <see cref="System.Windows.Forms.DialogResult"/> does not equal to <see cref="System.Windows.Forms.DialogResult.OK"/>.</param>
+        /// <exception cref="RLGVF.Methods.ExitProgramException"></exception>
         public static string ShowDialog(FileDialog Dialog, ExitProgramException ExceptionObject)
         {
             if (Dialog.ShowDialog() == DialogResult.OK)
@@ -467,7 +566,12 @@ plugin:SetSetting(""GlobalListCheckFinished"", true)");
             }
         }
 
-        //Returns FolderBrowserDialog path if DialogResult is OK, exists the program if otherwise.
+        /// <summary> 
+        /// Returns the provided directory from <see cref="System.Windows.Forms.CommonDialog.ShowDialog"/> if <see cref="System.Windows.Forms.DialogResult"/> equals <see cref="System.Windows.Forms.DialogResult.OK"/>.
+        /// </summary>
+        /// <param name="Dialog">Represents a <see cref="System.Windows.Forms.FolderBrowserDialog"/> value that will be shown to user.</param>
+        /// <param name="ExceptionObject">Represents a <see cref="RLGVF.Methods.ExitProgramException"/> value that will be thrown if <see cref="System.Windows.Forms.DialogResult"/> does not equal to <see cref="System.Windows.Forms.DialogResult.OK"/>.</param>
+        /// <exception cref="RLGVF.Methods.ExitProgramException"></exception>
         public static string ShowDialog(FolderBrowserDialog Dialog, ExitProgramException ExceptionObject)
         {
             if (Dialog.ShowDialog() == DialogResult.OK)
