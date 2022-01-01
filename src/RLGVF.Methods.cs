@@ -18,7 +18,7 @@ namespace RLGVF.Methods
             AwaitInput = 4
         }
 
-        public static void Output(OutputFormatType OutputType, byte PrefixLineTerminatorCount = 0, byte PostfixLineTerminatorCount = 0, params object[] FormatArguments)
+        public static void Output(OutputFormatType OutputType, byte PrefixLineTerminatorCount = 0, byte PostfixLineTerminatorCount = 0, params string[] FormatArguments)
         {
             switch (OutputType)
             {
@@ -31,7 +31,7 @@ namespace RLGVF.Methods
                     break;
 
                 case OutputFormatType.OperationsTimeSpan:
-                    Console.Write($"{new string('\n', PrefixLineTerminatorCount)}Operations completed: Took {FormatArguments[0]} hours, {FormatArguments[1]} minutes, {FormatArguments[2]} seconds, {FormatArguments[3]} milliseconds.{new string('\n', PostfixLineTerminatorCount)}");
+                    Console.Write($"{new string('\n', PrefixLineTerminatorCount)}Operations completed: Took {FormatArguments[0]} hour{(FormatArguments[0] == "1" ? "" : "s")}, {FormatArguments[1]} minute{(FormatArguments[1] == "1" ? "" : "s")}, {FormatArguments[2]} second{(FormatArguments[2] == "1" ? "" : "s")}, {FormatArguments[3]} millisecond{(FormatArguments[3] == "1" ? "" : "s")}.{new string('\n', PostfixLineTerminatorCount)}");
                     break;
 
                 case OutputFormatType.String:
