@@ -9,7 +9,7 @@
       <Value Profile="(Default)">v1.3.Beta</Value>
     </Setting>
     <Setting Name="InstructionsLink" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Instructions link does not exist for beta version.</Value>
+      <Value Profile="(Default)">https://github.com/Mactavsin/Roblox-Luau-Global-Variable-Fetcher/blob/v1.3.Beta/README.md#how-do-i-use-it</Value>
     </Setting>
     <Setting Name="FolderBrowserDialogGuid" Type="System.String" Scope="Application">
       <Value Profile="(Default)">7c6d2b2f-7791-4367-89d3-6ec66114d95e</Value>
