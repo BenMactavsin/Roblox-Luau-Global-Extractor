@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.ComponentModel;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading;
 using RLGVF.Methods;
 using RLGVF.Properties;
 
@@ -103,6 +104,7 @@ namespace RLGVF
             //Matching all strings in executable file that has 2 or more alphanumerical + underscore characters in them.
             int IteratedMatchCount = 0;
             int DuplicateMatchCount = 0;
+
             UncategorizedMethodsProvider.CheckMatches(Regex.Matches(File.ReadAllText(RobloxStudioExecutableDirectory), @"[a-zA-Z_][0-9a-zA-Z_]+", RegexOptions.Compiled), ref FirstGlobalEntryListStringBuilder, ref IteratedMatchCount, ref DuplicateMatchCount);
 
             {
@@ -130,6 +132,12 @@ namespace RLGVF
                     StartInfo = new ProcessStartInfo(RobloxStudioExecutableDirectory, $"-task EditFile -localPlaceFile {TemporaryPlaceFileDirectory}")
                 })
                 {
+                    //Adding an ProcessExit Eventhandler to prevent temporary files from staying forever when program exists in the middle of process.
+                    AppDomain.CurrentDomain.ProcessExit += (object SenderObject, EventArgs EventArguments) => {
+                        TemporaryDirectoryProvider.ClearDirectories();
+                        File.WriteAllText(PluginSettingsFileDirectory, PreviousPluginSettingsFileData);
+                    };
+
                     //FileSystemWatcher to track plugin settings file changes.
                     using (FileSystemWatcher PluginSettingsFolderDirectoryWatcher = new FileSystemWatcher(PluginSettingsFolderDirectory, "settings.json")
                     {
@@ -139,16 +147,28 @@ namespace RLGVF
                     })
                     {
                         PluginSettingsFolderDirectoryWatcher.Changed += (object SenderSource, FileSystemEventArgs EventArguments) =>
+                        ushort ChangedEventFireCount = 0;
+
+                        PluginSettingsFolderDirectoryWatcher.Changed += async void (object SenderSource, FileSystemEventArgs EventArguments) =>
                         {
                             using (FileStream PluginSettingsFileStream = new FileStream(EventArguments.FullPath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
+                            //Periodic timer so program doesn't create a byte array 8 times in the span of half a second.
+                            using (PeriodicTimer WaitTimer = new PeriodicTimer(TimeSpan.FromSeconds(3)))
                             {
                                 using (StreamReader PluginSettingsFileStreamReader = new StreamReader(PluginSettingsFileStream))
+                                ushort CurrentEventFireCount = ++ChangedEventFireCount;
+
+                                await WaitTimer.WaitForNextTickAsync();
+
+                                if (CurrentEventFireCount == ChangedEventFireCount)
                                 {
                                     try
+                                    using (FileStream PluginSettingsFileStream = new FileStream(EventArguments.FullPath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
                                     {
                                         Dictionary<string, JsonElement> PluginSettingsFileJsonData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(PluginSettingsFileStreamReader.ReadToEnd());
 
                                         if (PluginSettingsFileJsonData.ContainsKey("GlobalList") == true && PluginSettingsFileJsonData.ContainsKey("GlobalListCheckFinished") == true && PluginSettingsFileJsonData["GlobalListCheckFinished"].GetBoolean() == true)
+                                        try
                                         {
                                             PluginSettingsFolderDirectoryWatcher.EnableRaisingEvents = false;
                                             FinalGlobalEntryList = PluginSettingsFileJsonData["GlobalList"].GetString();
@@ -158,9 +178,74 @@ namespace RLGVF
                                                 RobloxStudioRuntimeLuauGlobalEnviromentCheckProcess.Kill();
                                             }
                                             catch (Win32Exception)
+                                            //I had to create a local method because because apperently you can't construct Utf8JsonReader in an async method.
+                                            void RunInSync()
                                             {
                                                 //Apperently calling Process.Kill() on a process you started can throw Win32Exception.
                                             }
+                                                byte[] PluginPluginSettingsFileByteArray = new byte[PluginSettingsFileStream.Length];
+
+                                                PluginSettingsFileStream.Read(PluginPluginSettingsFileByteArray);
+
+                                                Utf8JsonReader PluginSettingsFileJsonReader = new Utf8JsonReader(PluginPluginSettingsFileByteArray, new JsonReaderOptions()
+                                                {
+                                                    AllowTrailingCommas = true,
+                                                });
+
+                                                PluginSettingsFileJsonReader.Read();
+
+                                                bool GlobalListCheckFinished = false;
+                                                string GlobalList = string.Empty;
+
+                                                while (PluginSettingsFileJsonReader.Read() == true)
+                                                {
+                                                    if (PluginSettingsFileJsonReader.TokenType == JsonTokenType.PropertyName)
+                                                    {
+                                                        switch (PluginSettingsFileJsonReader.GetString())
+                                                        {
+                                                            case "GlobalListCheckFinished":
+                                                                PluginSettingsFileJsonReader.Read();
+                                                                GlobalListCheckFinished = PluginSettingsFileJsonReader.GetBoolean();
+                                                                break;
+
+                                                            case "GlobalList":
+                                                                PluginSettingsFileJsonReader.Read();
+                                                                GlobalList = PluginSettingsFileJsonReader.GetString();
+                                                                break;
+
+                                                            default:
+                                                                PluginSettingsFileJsonReader.Read();
+
+                                                                if (PluginSettingsFileJsonReader.TokenType == JsonTokenType.StartObject || PluginSettingsFileJsonReader.TokenType == JsonTokenType.StartArray)
+                                                                {
+                                                                    PluginSettingsFileJsonReader.Skip();
+                                                                }
+                                                                break;
+                                                        }
+                                                    }
+                                                }
+
+                                                if (GlobalListCheckFinished == true)
+                                                {
+                                                    PluginSettingsFolderDirectoryWatcher.EnableRaisingEvents = false;
+                                                    FinalGlobalEntryList = GlobalList;
+
+                                                    try
+                                                    {
+                                                        RobloxStudioRuntimeLuauGlobalEnviromentCheckProcess.Kill();
+                                                    }
+                                                    catch (Win32Exception)
+                                                    {
+                                                        //Apperently calling Process.Kill() on a process you started can throw Win32Exception.
+                                                    }
+                                                }
+                                            };
+
+                                            RunInSync();
+                                        }
+                                        catch (JsonException)
+                                        {
+                                            //Better luck next time.
                                         }
                                     }
                                     catch (JsonException)
