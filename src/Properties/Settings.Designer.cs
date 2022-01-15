@@ -34,7 +34,7 @@ namespace RLGVF.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("v1.3.Beta")]
+        [global::System.Configuration.DefaultSettingValueAttribute("v1.3.Stable")]
         public string VersionInfo {
             get {
                 return ((string)(this["VersionInfo"]));
@@ -43,8 +43,8 @@ namespace RLGVF.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("https://github.com/Mactavsin/Roblox-Luau-Global-Variable-Fetcher/blob/v1.3.Beta/R" +
-            "EADME.md#how-do-i-use-it")]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://github.com/Mactavsin/Roblox-Luau-Global-Variable-Fetcher/blob/master/READ" +
+            "ME.md#how-do-i-use-it")]
         public string InstructionsLink {
             get {
                 return ((string)(this["InstructionsLink"]));
