@@ -5,7 +5,6 @@ using System.Text.RegularExpressions;
 using System.IO;
 using System.Diagnostics;
 using System.ComponentModel;
-using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading;
 using RLGVF.Methods;
@@ -146,43 +145,26 @@ namespace RLGVF
                         IncludeSubdirectories = false
                     })
                     {
-                        PluginSettingsFolderDirectoryWatcher.Changed += (object SenderSource, FileSystemEventArgs EventArguments) =>
                         ushort ChangedEventFireCount = 0;
 
                         PluginSettingsFolderDirectoryWatcher.Changed += async void (object SenderSource, FileSystemEventArgs EventArguments) =>
                         {
-                            using (FileStream PluginSettingsFileStream = new FileStream(EventArguments.FullPath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
                             //Periodic timer so program doesn't create a byte array 8 times in the span of half a second.
                             using (PeriodicTimer WaitTimer = new PeriodicTimer(TimeSpan.FromSeconds(3)))
                             {
-                                using (StreamReader PluginSettingsFileStreamReader = new StreamReader(PluginSettingsFileStream))
-                                ushort CurrentEventFireCount = ++ChangedEventFireCount;
+                                    ushort CurrentEventFireCount = ++ChangedEventFireCount;
 
                                 await WaitTimer.WaitForNextTickAsync();
 
                                 if (CurrentEventFireCount == ChangedEventFireCount)
                                 {
-                                    try
                                     using (FileStream PluginSettingsFileStream = new FileStream(EventArguments.FullPath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
                                     {
-                                        Dictionary<string, JsonElement> PluginSettingsFileJsonData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(PluginSettingsFileStreamReader.ReadToEnd());
-
-                                        if (PluginSettingsFileJsonData.ContainsKey("GlobalList") == true && PluginSettingsFileJsonData.ContainsKey("GlobalListCheckFinished") == true && PluginSettingsFileJsonData["GlobalListCheckFinished"].GetBoolean() == true)
                                         try
                                         {
-                                            PluginSettingsFolderDirectoryWatcher.EnableRaisingEvents = false;
-                                            FinalGlobalEntryList = PluginSettingsFileJsonData["GlobalList"].GetString();
-
-                                            try
-                                            {
-                                                RobloxStudioRuntimeLuauGlobalEnviromentCheckProcess.Kill();
-                                            }
-                                            catch (Win32Exception)
                                             //I had to create a local method because because apperently you can't construct Utf8JsonReader in an async method.
                                             void RunInSync()
-                                            {
-                                                //Apperently calling Process.Kill() on a process you started can throw Win32Exception.
-                                            }
+                                                {
                                                 byte[] PluginPluginSettingsFileByteArray = new byte[PluginSettingsFileStream.Length];
 
                                                 PluginSettingsFileStream.Read(PluginPluginSettingsFileByteArray);
@@ -239,18 +221,15 @@ namespace RLGVF
                                                         //Apperently calling Process.Kill() on a process you started can throw Win32Exception.
                                                     }
                                                 }
-                                            };
+                                            }
 
                                             RunInSync();
+
                                         }
                                         catch (JsonException)
                                         {
                                             //Better luck next time.
                                         }
-                                    }
-                                    catch (JsonException)
-                                    {
-                                        //Better luck next time.
                                     }
                                 }
                             }
