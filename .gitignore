@@ -1,7 +1,9 @@
-**/src/ConsoleApp1/bin
-**/src/ConsoleApp1/obj
+**/src/bin
+**/src/obj
 **/.ionide
+**/src/Properties/PublishProfiles
 **/src/.vs
-**/src/packages
+**/.vs
+**/.vscode
 .fake
 .ionide
