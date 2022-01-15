@@ -546,6 +546,8 @@ plugin:SetSetting(""GlobalListCheckFinished"", true)");
                     ConsoleOutputProvider.Output(ConsoleOutputProvider.OutputFormatType.String, 0, 0, $"\rIterated through {IteratedMatchCount}/{MatchCollection.Count} matches.");
                 }
             }
+
+            GlobalDictionary.Clear();
         }
 
         /// <summary> 
