@@ -1,9 +1,0 @@
-**/src/bin
-**/src/obj
-**/.ionide
-**/src/Properties/PublishProfiles
-**/src/.vs
-**/.vs
-**/.vscode
-.fake
-.ionide
