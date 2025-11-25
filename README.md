@@ -101,5 +101,3 @@ Yes. You can post your bugs and suggestions in issues tab. You can also propose 
 Repository Page: https://github.com/Mactavsin/Roblox-Studio-Global-Variable-Fetcher
 
 Roblox Devforum Post: https://devforum.roblox.com/t/v12-roblox-luau-global-variable-fetcher/1592480
-
-My Twitter (To ask questions about the program directly.): https://twitter.com/BenMactavsin
