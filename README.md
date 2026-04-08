@@ -1,3 +1,6 @@
+# ARCHIVED - No Longer Maintained
+### This repository is no longer maintained. Please reconsider alternative solutions or proceed at your own risk.<br/><br/>
+
 # Roblox Luau Global Variable Fetcher
 
 A barebone implementation of searching ASCII strings in Roblox Studio executable to create a list of possible built-in Luau globals.
@@ -18,9 +21,9 @@ So with these facts in mind, I decided to write one for myself. After writing th
 
 # How to download it?
 
-You can go to the released tab and \*download the executable file from the latest stable release.
+~~You can go to the released tab and \*download the executable file from the latest stable release.~~
 
-(You can also download the pre-release one (If there is one.) if you're feeling a little bit more brave.)
+~~(You can also download the pre-release one (If there is one.) if you're feeling a little bit more brave.)~~
 
 * You can also copy the source code from `src` folder and build the executable yourself if you know how to do so.
 
@@ -31,9 +34,9 @@ https://dotnet.microsoft.com/en-us/download/dotnet/6.0/runtime
 
 While the program is running, it's highly recommended that you keep the Roblox Studio closed and not interfere when program opens it automatically unless program throws an error or closes unexpectedly. 
 
-If former throws an error that starts with "`Program exited unexpectedly with error`" or the latter happens, please go to the [Github Issues Page](https://github.com/Mactavsin/Roblox-Luau-Global-Variable-Fetcher/issues) or [Roblox Devforum post](https://devforum.roblox.com/t/v12-roblox-luau-global-variable-fetcher/1592480) and report the error to me with details of the error and reproduction steps.
+~~If former throws an error that starts with "`Program exited unexpectedly with error`" or the latter happens, please go to the [Github Issues Page](https://github.com/BenMactavsin/Roblox-Luau-Global-Extractor) or [Roblox Devforum post](https://devforum.roblox.com/t/1592480) and report the error to me with details of the error and reproduction steps.~~
 
-Program also can miss some of the globals in the final result if they only exist on `AutocompleteMetadata.xml` XML file. This is being planned to be fixed on `v2.0`.
+Program also can miss some of the globals in the final result if they only exist on `AutocompleteMetadata.xml` XML file. ~~This is being planned to be fixed on `v2.0`.~~
 
 ## Process:
 
@@ -93,11 +96,12 @@ Run the `RLGVF.exe`. You will be met with 3 different `CommonDialog`s:
 
 After doing all of the above, program will start operations. Program will output "`List is saved to directory: {SaveFileDirectory}`" if operations completed successfuly and it will be safe to exit the program. You can view the final result by viewing the save file.
 
-# Can I create issues/pull request?
+# ~~Can I create issues/pull request?~~
 
-Yes. You can post your bugs and suggestions in issues tab. You can also propose changes by creating a pull request. You can ask questions about the program by directly messaging me or on Roblox Devforum Post down below.
+~~Yes. You can post your bugs and suggestions in issues tab. You can also propose changes by creating a pull request. You can ask questions about the program by directly messaging me or on Roblox Devforum Post down below.~~
 
 # Links
-Repository Page: https://github.com/Mactavsin/Roblox-Studio-Global-Variable-Fetcher
 
-Roblox Devforum Post: https://devforum.roblox.com/t/v12-roblox-luau-global-variable-fetcher/1592480
+Repository Page: https://github.com/BenMactavsin/Roblox-Luau-Global-Extractor
+
+Roblox Devforum Post: https://devforum.roblox.com/t/1592480
